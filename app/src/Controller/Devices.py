@@ -11,6 +11,10 @@ class Devices:
     @staticmethod
     def init() -> None:
         Devices.get_list()
+        
+    @staticmethod
+    def get_router_mac() -> list[str]:
+        return [item.mac for item in Devices.gateways]
 
     @staticmethod
     def get_list() -> Omada.Model.Device:

@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.helpers.modelFields as modelFields
 
 value_map: dict[str, dict] = {
