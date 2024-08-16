@@ -2,13 +2,16 @@ from pydantic import BaseModel, Field, field_serializer
 import datetime
 import src.Omada.helpers.timeFunctions as timeHelpers
 
+import src.Omada.helpers.modelFields as modelFields
 
-status_def = {
-    0: "Disconnected",
-    1: "Connected",
-    2: "Pending",
-    3: "Heartbeat Missed",
-    4: "Isolated",
+value_map: dict[str, dict] = {
+    "status": {
+        0: "Disconnected",
+        1: "Connected",
+        2: "Pending",
+        3: "Heartbeat Missed",
+        4: "Isolated",
+    }
 }
 
 
@@ -29,7 +32,7 @@ class Device(BaseModel):
     def __init__(self, **data):
 
         data["lastSeen"] = timeHelpers.get_last_seen(data["lastSeen"])
-        data["status"] = status_def.get(data["status"])
+        data = modelFields.map_data_values(data,value_map)
 
         super().__init__(**data)
 

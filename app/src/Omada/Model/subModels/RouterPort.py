@@ -38,7 +38,5 @@ class RouterPort(BaseModel):
     pvid: int = Field(default=None)
 
     def __init__(self, **data):
-        data = modelFields.map_data_values(
-            data, ["linkSpeed", "duplex", "mirrorMode"], value_map
-        )
+        data = modelFields.map_data_values(data, value_map)
         super().__init__(**data)

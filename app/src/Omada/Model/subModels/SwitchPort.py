@@ -25,7 +25,5 @@ class SwitchPort(BaseModel):
     status: str = Field(default=None)
 
     def __init__(self, **data):
-        data = modelFields.map_data_values(
-            data, ["poeMode", "status"], value_map
-        )
+        data = modelFields.map_data_values(data, value_map)
         super().__init__(**data)
