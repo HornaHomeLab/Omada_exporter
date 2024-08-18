@@ -5,6 +5,8 @@ import src.Omada.helpers.timeFunctions as timeHelpers
 from src.Omada.Model.subModels.SwitchPort import SwitchPort
 
 class Switch(BaseModel):
+    deviceType: str = Field(default="Switch")
+    name: str
     mac: str
     ip: str
     ipv6List: list[str]

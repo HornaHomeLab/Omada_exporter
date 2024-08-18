@@ -1,4 +1,5 @@
 import src.Omada as Omada
+import src.Prometheus as Prometheus
 
 
 class Devices:
@@ -11,7 +12,7 @@ class Devices:
     @staticmethod
     def init() -> None:
         Devices.get_list()
-        
+
     @staticmethod
     def get_router_mac() -> list[str]:
         return [item.mac for item in Devices.gateways]
@@ -40,16 +41,23 @@ class Devices:
         @staticmethod
         def get_info() -> list[Omada.Model.Router]:
 
-            return [
+            result =  [
                 Omada.Model.Router(
-                    **Omada.Request.get(
-                        Devices.Router.__router_info_path, {
-                            "gatewayMac": item.mac
-                        }
-                    )
+                    **{
+                        "name": item.name,
+                        **Omada.Request.get(
+                            Devices.Router.__router_info_path, {
+                                "gatewayMac": item.mac
+                            }
+                        )
+                    }
                 )
                 for item in Devices.gateways
             ]
+            
+            Prometheus.Router.update_metrics(result)
+            
+            return result
 
     class Switch:
 
@@ -58,24 +66,31 @@ class Devices:
         @staticmethod
         def get_info() -> list[Omada.Model.Router]:
 
-            return [
+            result = [
                 Omada.Model.Switch(
-                    **Omada.Request.get(
-                        Devices.Switch.__switch_info_path, {
-                            "switchMac": item.mac
-                        }
-                    )
+                    **{
+                        "name": item.name,
+                        **Omada.Request.get(
+                            Devices.Switch.__switch_info_path, {
+                                "switchMac": item.mac
+                            }
+                        )
+                    }
                 )
                 for item in Devices.switches
             ]
+            
+            Prometheus.Switch.update_metrics(result)
+            
+            return result
 
     class AccessPoint:
         __access_point_info_path: str = "/openapi/v1/{omadacId}/sites/{siteId}/aps/{apMac}"
-        
+
         @staticmethod
         def get_info() -> list[Omada.Model.AccessPoint]:
 
-            return [
+            result = [
                 Omada.Model.AccessPoint(
                     **Omada.Request.get(
                         Devices.AccessPoint.__access_point_info_path, {
@@ -85,6 +100,10 @@ class Devices:
                 )
                 for item in Devices.access_points
             ]
+
+            Prometheus.AccessPoint.update_metrics(result)
+
+            return result
 
 
 Devices.init()

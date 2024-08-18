@@ -5,8 +5,10 @@ import src.Omada.helpers.timeFunctions as timeHelpers
 from src.Omada.Model.subModels.RouterPort import RouterPort
 
 class Router(BaseModel):
+    deviceType: str = Field(default="Router")
+    name: str
     mac: str 
-    showModel: str
+    model: str = Field(alias="showModel")
     firmwareVersion: str
     ip: str
     uptime: str

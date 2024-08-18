@@ -16,13 +16,13 @@ value_map: dict[str, dict] = {
 
 class SwitchPort(BaseModel):
     port: int
-    name: str
+    port_name: str = Field(alias="name")
     profileId: str
     profileName: str
     profileOverrideEnable: bool
     poeMode: str
     lagPort: bool
-    status: str = Field(default=None)
+    status: str = Field(default="lag_port")
 
     def __init__(self, **data):
         data = modelFields.map_data_values(data, value_map)

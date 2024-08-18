@@ -1,10 +1,12 @@
 import os
 from dotenv import load_dotenv
 import requests
-from src.Omada.helpers.Auth import Auth
+import datetime
+import src.Omada.API.Auth as Auth
 import src.Omada.helpers.requestsResult as requestHelpers
 
 load_dotenv()
+
 
 class Request:
 
@@ -12,20 +14,49 @@ class Request:
     omada_cid: str = None
     controller_version: str = None
     api_version: str = None
-    
+
+    __user_session: Auth.UserSession = None
+
     __base_url: str = os.getenv("BASE_URL")
     __verify_certificate: bool = os.getenv("VERIFY_CERTIFICATE")
 
     __page_size: int = 100
+    
+
 
     @staticmethod
-    def get(
-        path: str, arguments: dict = {}, include_auth: bool = True, include_params: bool = True, page: int = 1
+    def get(path: str, arguments: dict = {}, include_auth: bool = True, include_params: bool = True, page: int = 1):
+        url = Request.__get_url(path, arguments)
+        
+        if path.startswith("/api/") and path != "/api/info":
+            return Request.get_method_web_api(url)
+        elif path.startswith("/openapi/") or path == "/api/info":
+            return Request.get_method_openapi(url,include_auth,include_params)
+        
+    @staticmethod
+    def get_method_web_api(url: str) -> requests.Response:
+        user_session = Auth.UserSession(
+            username=os.getenv("OMADA_USER"),
+            password=os.getenv("OMADA_USER_PASSWORD"),
+            omada_cid=Request.omada_cid
+        )
+        response = user_session.session.get(
+            url=url,
+            params={
+                "_t": Request.__get_timestamp()
+            }
+        )
+        del user_session
+        result: dict = requestHelpers.get_request_result(url, response)
+        return result
+
+    @staticmethod
+    def get_method_openapi(
+        url: str, include_auth: bool = True, include_params: bool = True, page: int = 1
     ) -> dict:
         headers = Request.__get_headers(include_auth)
         params = Request.__get_params(page, include_params)
-
-        url = Request.__get_url(path, arguments)
+        
         response = requests.get(
             url,
             headers=headers,
@@ -40,7 +71,7 @@ class Request:
 
             result = result.get("data")
             result += Request.get(
-                path, include_auth, include_params, page+1
+                url, include_auth, include_params, page+1
             )
 
         return result
@@ -61,6 +92,9 @@ class Request:
 
     @staticmethod
     def __get_url(path: str, arguments: dict = {}) -> str:
+        if path.startswith("/api/") and path != "/api/info":
+            path = "/{omadacId}" + path
+        
         arguments = {
             "omadacId": Request.omada_cid,
             "siteId": Request.site_id,
@@ -79,7 +113,7 @@ class Request:
         if include_auth_headers:
             return {
                 "Authorization": "AccessToken={token}".format(
-                    token=Auth.get_token()
+                    token=Auth.OpenAPI.get_token()
                 ),
                 "content-type": "application/json"
             }
@@ -95,6 +129,10 @@ class Request:
         return None
 
     @staticmethod
+    def __get_timestamp() -> int:
+        return int(datetime.datetime.now().timestamp() * 1000)
+
+    @staticmethod
     def __get_fetched_rows(result: dict) -> int:
         return result.get("currentPage") * result.get("currentSize")
 
@@ -108,16 +146,16 @@ class Request:
             return ('data' in list(result.keys()))
         except:
             return False
-        
+
     @staticmethod
-    def init()->None:
+    def init() -> None:
         api_info = Request.get(
             "/api/info", include_auth=False, include_params=False
         )
         Request.controller_version = api_info.get("controllerVer")
         Request.api_version = api_info.get("apiVer")
         Request.omada_cid = api_info.get("omadacId")
-        Auth.omada_cid = api_info.get("omadacId")
+        Auth.OpenAPI.omada_cid = api_info.get("omadacId")
 
         site = Request.get("/openapi/v1/{omadacId}/sites")
         Request.site_id = [
@@ -125,5 +163,6 @@ class Request:
             for entry in site
             if entry.get("name") == os.getenv("SITE_NAME")
         ][0]
+
 
 Request.init()
