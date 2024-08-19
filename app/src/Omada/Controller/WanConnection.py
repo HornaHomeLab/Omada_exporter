@@ -1,5 +1,4 @@
 import src.Omada as Omada
-from src.Controller.Devices import Devices
 
 class WanConnection:
 

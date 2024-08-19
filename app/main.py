@@ -12,9 +12,9 @@ app = FastAPI()
 
 @app.get("/metrics")
 def get_metrics():
-    Controller.Devices.AccessPoint.get_info()
-    Controller.Devices.Switch.get_info()
-    Controller.Devices.Router.get_info()
+    Controller.PrometheusMetrics.update_switch_metrics()
+    Controller.PrometheusMetrics.update_router_metrics()
+    Controller.PrometheusMetrics.update_access_point_metrics()
     return Response(
         content=generate_latest(),
         media_type="text/plain"

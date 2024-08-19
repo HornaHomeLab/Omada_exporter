@@ -1,42 +1,58 @@
-from prometheus_client import Info
+from prometheus_client import Gauge
 
 import src.Omada as Omada
-from src.Omada.Model.subModels.SwitchPort import SwitchPort
+from src.Omada.Model.Ports import SwitchPort
 from src.Prometheus.BaseClient import BaseDeviceMetrics, labels
 
-switch_labels = labels + [
-    "profileName",
+switch_labels = [
+    "name",
+    "mac",
     "port",
-    "port_name",
-    "lagPort",
+    "portName",
+    "disable",
+    "profileName",
+    "operation",
+    "linkStatus",
+    "linkSpeed",
+    "duplex",
+    "poe",
 ]
 
 
 class Switch(BaseDeviceMetrics):
-    ports: Info = Info("switch_port_status", "Status of the switch port",
-                       switch_labels)
+    ports_rx: Gauge = Gauge(
+        "switch_port_rx", "Sum of received bytes", switch_labels
+    )
+    ports_tx: Gauge = Gauge(
+        "switch_port_tx", "Sum of transmitted bytes", switch_labels
+    )
 
     @staticmethod
-    def update_metrics(metrics: list[Omada.Model.Switch]):
-        Switch.update_base_metrics(metrics)
-        Switch.__update_port_status(metrics)
+    def update_metrics(switch_metrics: list[Omada.Model.Switch], switch_port_metrics: list[Omada.Model.Ports.SwitchPort]):
+        Switch.update_base_metrics(switch_metrics)
+        Switch.__update_port_status(switch_port_metrics)
 
     @staticmethod
-    def __update_port_status(metrics: list[Omada.Model.Switch]):
-        for device in metrics:
-            for port in device.portList:
-                port_labels = Switch.__get_port_labels(port, device)
-                Switch.ports.labels(
-                    **port_labels
-                ).info({"state": port.status})
+    def __update_port_status(switch_port_metrics: list[Omada.Model.Ports.SwitchPort]):
+        for port in switch_port_metrics:
+            port_labels: dict[str, str] = Switch.__get_port_labels(port)
+            (
+                Switch
+                .ports_rx
+                .labels(**(port_labels))
+                .set(port.rx)
+            )
+            (
+                Switch
+                .ports_tx
+                .labels(**(port_labels))
+                .set(port.tx)
+            )
 
     @staticmethod
-    def __get_port_labels(port: SwitchPort, device: Omada.Model.Switch):
-        result = {}
-        port_model_dump: dict[str, any] = port.model_dump()
-        device_model_dump: dict[str, any] = device.model_dump()
-        
-        for label in switch_labels:
-            result[label] = port_model_dump.get(label,device_model_dump.get(label))
-            
-        return result
+    def __get_port_labels(port: SwitchPort):
+        return {
+            k: v
+            for k, v in port.model_dump().items()
+            if k not in ["rx", "tx"]
+        }
