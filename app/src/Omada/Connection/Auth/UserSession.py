@@ -51,7 +51,6 @@ class UserSession:
         )
 
         result = t.json()
-
         return result
 
     def get_session(self) -> requests.Session:

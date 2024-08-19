@@ -1,8 +1,9 @@
 import os
+import atexit
 from dotenv import load_dotenv
 import requests
 import datetime
-import src.Omada.API.Auth as Auth
+import src.Omada.Connection.Auth as Auth
 import src.Omada.helpers.requestsResult as requestHelpers
 
 load_dotenv()
@@ -35,18 +36,13 @@ class Request:
         
     @staticmethod
     def get_method_web_api(url: str) -> requests.Response:
-        user_session = Auth.UserSession(
-            username=os.getenv("OMADA_USER"),
-            password=os.getenv("OMADA_USER_PASSWORD"),
-            omada_cid=Request.omada_cid
-        )
-        response = user_session.session.get(
+
+        response = Request.__user_session.session.get(
             url=url,
             params={
                 "_t": Request.__get_timestamp()
             }
         )
-        del user_session
         result: dict = requestHelpers.get_request_result(url, response)
         return result
 
@@ -156,6 +152,12 @@ class Request:
         Request.api_version = api_info.get("apiVer")
         Request.omada_cid = api_info.get("omadacId")
         Auth.OpenAPI.omada_cid = api_info.get("omadacId")
+        
+        Request.__user_session = Auth.UserSession(
+            username=os.getenv("OMADA_USER"),
+            password=os.getenv("OMADA_USER_PASSWORD"),
+            omada_cid=Request.omada_cid
+        )
 
         site = Request.get("/openapi/v1/{omadacId}/sites")
         Request.site_id = [
@@ -163,6 +165,12 @@ class Request:
             for entry in site
             if entry.get("name") == os.getenv("SITE_NAME")
         ][0]
+        
+    @staticmethod
+    def close():
+        del Request.__user_session
+        
 
 
 Request.init()
+atexit.register(Request.close)

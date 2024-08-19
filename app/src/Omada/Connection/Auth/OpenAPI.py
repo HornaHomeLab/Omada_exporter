@@ -1,11 +1,9 @@
-from dataclasses import dataclass, field
 import os
 import datetime
 import requests
 from dotenv import load_dotenv
-from requests.cookies import RequestsCookieJar
 import src.Omada.helpers.requestsResult as requestHelpers
-from src.Omada.API.Auth.BaseAuth import BaseAuth
+from src.Omada.Connection.Auth.BaseAuth import BaseAuth
 
 load_dotenv()
 
