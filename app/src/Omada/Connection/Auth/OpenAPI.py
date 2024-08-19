@@ -32,7 +32,7 @@ class OpenAPI(BaseAuth):
 
     @staticmethod
     def __is_token_expired() -> bool:
-        return ((OpenAPI.expires_at - datetime.timedelta(seconds=60)) > datetime.datetime.now())
+        return ((OpenAPI.expires_at - datetime.timedelta(seconds=60)) < datetime.datetime.now())
 
     @staticmethod
     def __set_expiration_time(expires_in: int) -> None:

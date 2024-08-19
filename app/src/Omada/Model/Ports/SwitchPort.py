@@ -5,7 +5,7 @@ import src.Omada.helpers.modelFields as modelFields
 
 
 class SwitchPort(BaseModel):
-    name: str
+    name: str = Field(alias="switchName")
     mac: str = Field(alias="switchMac")
     port: int
     portName: str = Field(alias="name")
@@ -23,5 +23,5 @@ class SwitchPort(BaseModel):
         if data["linkStatus"] == 0:
             data["linkSpeed"] = -1
             data["duplex"] = -1
-        data = modelFields.map_data_values(data, Port.value_map)
+        data = modelFields.map_data_values(data, Port.switch_value_map)
         super().__init__(**data)

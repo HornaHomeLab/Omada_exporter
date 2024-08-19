@@ -1,5 +1,6 @@
 import src.Omada as Omada
 from prometheus_client import Gauge
+import src.Omada.Model.Ports as Ports
 
 labels = ["deviceType", "name", "mac", "ip", "model", "firmwareVersion"]
 
@@ -39,3 +40,11 @@ class BaseDeviceMetrics:
             result[label] = model_dump.get(label)
 
         return result
+    
+    @staticmethod
+    def get_port_labels(port: Ports.RouterPort | Ports.SwitchPort):
+        return {
+            k: v
+            for k, v in port.model_dump().items()
+            if k not in ["rx", "tx"]
+        }

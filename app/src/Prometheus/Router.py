@@ -1,44 +1,56 @@
-from prometheus_client import Info
+from prometheus_client import Gauge
 
 import src.Omada as Omada
-from src.Omada.Model.subModels.RouterPort import RouterPort
 from src.Prometheus.BaseClient import BaseDeviceMetrics, labels
 
-router_labels = labels + [
+router_labels = [
+    "name",
+    "mac",
     "port",
+    "portName",
+    "portDesc",
+    "mode",
+    "ip",
+    "poe",
+    "linkStatus",
+    "internetState",
+    "online",
+    "linkSpeed",
     "duplex",
-    "mirrorEnable",
-    "mirroredPorts",
-    "mirrorMode",
-    "pvid",
+    "protocol",
+    "wanPortIpv6Config",
+    "wanPortIpv4Config",
+    "latency",
+    "loss",
 ]
 
 
 class Router(BaseDeviceMetrics):
-    ports: Info = Info("router_port_status", "Status of the router port",
-                       router_labels)
+    ports_rx: Gauge = Gauge(
+        "router_port_rx", "Sum of received bytes", router_labels
+    )
+    ports_tx: Gauge = Gauge(
+        "router_port_tx", "Sum of transmitted bytes", router_labels
+    )
 
     @staticmethod
-    def update_metrics(metrics: list[Omada.Model.Router]):
-        Router.update_base_metrics(metrics)
-        Router.__update_port_status(metrics)
+    def update_metrics(router_metrics: list[Omada.Model.Router], router_port_metrics: list[Omada.Model.Ports.RouterPort]):
+        Router.update_base_metrics(router_metrics)
+        Router.__update_port_status(router_port_metrics)
 
     @staticmethod
-    def __update_port_status(metrics: list[Omada.Model.Router]):
-        for device in metrics:
-            for port in device.portConfigs:
-                port_labels = Router.__get_port_labels(port, device)
-                Router.ports.labels(
-                    **port_labels
-                ).info({"linkSpeed": port.linkSpeed})
-
-    @staticmethod
-    def __get_port_labels(port: RouterPort, device: Omada.Model.Switch):
-        result = {}
-        port_model_dump: dict[str, any] = port.model_dump()
-        device_model_dump: dict[str, any] = device.model_dump()
-        
-        for label in router_labels:
-            result[label] = port_model_dump.get(label,device_model_dump.get(label))
-            
-        return result
+    def __update_port_status(port_metrics: list[Omada.Model.Ports.RouterPort]):
+        for port in port_metrics:
+            port_labels = Router.get_port_labels(port)
+            (
+                Router
+                .ports_rx
+                .labels(**port_labels)
+                .set(port.rx)
+            )
+            (
+                Router
+                .ports_tx
+                .labels(**port_labels)
+                .set(port.tx)
+            )

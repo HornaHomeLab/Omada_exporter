@@ -35,7 +35,7 @@ class Switch(BaseDeviceMetrics):
     @staticmethod
     def __update_port_status(switch_port_metrics: list[Omada.Model.Ports.SwitchPort]):
         for port in switch_port_metrics:
-            port_labels: dict[str, str] = Switch.__get_port_labels(port)
+            port_labels: dict[str, str] = Switch.get_port_labels(port)
             (
                 Switch
                 .ports_rx
@@ -50,7 +50,7 @@ class Switch(BaseDeviceMetrics):
             )
 
     @staticmethod
-    def __get_port_labels(port: SwitchPort):
+    def get_port_labels(port: SwitchPort):
         return {
             k: v
             for k, v in port.model_dump().items()

@@ -1,4 +1,4 @@
-value_map: dict[str, dict] = {
+switch_value_map: dict[str, dict] = {
     "linkStatus": {
         0: "Down",
         1: "Up"
@@ -23,5 +23,25 @@ value_map: dict[str, dict] = {
         0: "ingress",
         1: "egress",
         2: "ingress and egress",
+    },
+}
+
+router_value_map: dict[str, dict] = {
+    "status": switch_value_map["linkStatus"],
+    "speed": switch_value_map["linkSpeed"],
+    "duplex": switch_value_map["duplex"],
+    "onlineDetection": {
+        -1: "N/A",
+        0: "No",
+        1: "Yes",
+    },
+    "mode": {
+        -1: "N/A",
+        0: "WAN",
+        1: "LAN",
+    },
+    "internetState": {
+        0: "Offline",
+        1: "Online",
     },
 }

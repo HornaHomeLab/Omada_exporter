@@ -27,9 +27,9 @@ class Switch:
         return result
 
     @staticmethod
-    def get_switch_port_info():
+    def get_port_info():
 
-        switch_port: Model.Ports.SwitchPort = []
+        switch_port: list[Model.Ports.SwitchPort] = []
 
         for switch in Devices.switches:
             switch_port_response: dict = Connection.Request.get(
@@ -43,7 +43,7 @@ class Switch:
                         **(
                             {
                                 **Switch.__get_port_detail(port),
-                                "name": switch.name
+                                "switchName": switch.name
                             }
                         )
                     )

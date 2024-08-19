@@ -7,7 +7,7 @@ class PrometheusMetrics:
     @staticmethod
     def update_switch_metrics():
         devices = Omada.Controller.Switch.get_info()
-        ports = Omada.Controller.Switch.get_switch_port_info()
+        ports = Omada.Controller.Switch.get_port_info()
         
         Prometheus.Switch.update_metrics(devices, ports)
         
@@ -15,7 +15,8 @@ class PrometheusMetrics:
     @staticmethod
     def update_router_metrics():
         devices = Omada.Controller.Router.get_info()
-        Prometheus.Router.update_metrics(devices)
+        ports = Omada.Controller.Router.get_port_info()
+        Prometheus.Router.update_metrics(devices, ports)
         
     @staticmethod
     def update_access_point_metrics():
