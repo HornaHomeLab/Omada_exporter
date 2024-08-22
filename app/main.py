@@ -1,24 +1,9 @@
 import os
-from fastapi import FastAPI, Response
-from contextlib import asynccontextmanager
-from prometheus_client import generate_latest
-
-import src.Controller as Controller
-import src.Model as Model
-
-
+from fastapi import FastAPI
+import src.Router as Router
 
 app = FastAPI()
-
-@app.get("/metrics")
-def get_metrics():
-    Controller.PrometheusMetrics.update_switch_metrics()
-    Controller.PrometheusMetrics.update_router_metrics()
-    Controller.PrometheusMetrics.update_access_point_metrics()
-    return Response(
-        content=generate_latest(),
-        media_type="text/plain"
-    )
+app.include_router(Router.Prometheus_router)
 
 if __name__ == '__main__':
     import uvicorn
