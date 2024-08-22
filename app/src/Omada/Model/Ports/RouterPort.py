@@ -30,6 +30,8 @@ class RouterPort(BaseModel):
     loss: float | None
 
     def __init__(self, **data):
+        
+        # port is disconnected
         if data["status"] == 0:
             data["mode"] = -1
             data["onlineDetection"] = 0
@@ -39,6 +41,7 @@ class RouterPort(BaseModel):
             data["latency"] = 0
             data["loss"] = None
 
+        # port is in lan mode
         if data["mode"] == 1:
             data["onlineDetection"] = -1
             data["latency"] = 0

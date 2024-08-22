@@ -19,12 +19,12 @@ class UserSession:
         self.session = requests.Session()
         self.session.cookies = RequestsCookieJar()
         self.__base_url = os.getenv("BASE_URL")
-        self.__login()
+        self.login()
 
     def __del__(self):
         self.__logout()
 
-    def __login(self):
+    def login(self):
         url = self.__login_endpoint.format(
             base_url=self.__base_url,
             omadacId=self.omada_cid

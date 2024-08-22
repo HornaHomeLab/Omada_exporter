@@ -45,3 +45,15 @@ router_value_map: dict[str, dict] = {
         1: "Online",
     },
 }
+
+access_point_value_map: dict[str, dict] = {
+    "rate": {
+        "0": "Down",
+        "10": "10M",
+        "100": "100M",
+        "1000": "1000M",
+        "2500": "2500M",
+        "10000": "10G",
+    },
+    "duplex": switch_value_map["duplex"]
+}

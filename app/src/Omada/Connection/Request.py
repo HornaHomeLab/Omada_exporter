@@ -22,6 +22,7 @@ class Request:
     __verify_certificate: bool = os.getenv("VERIFY_CERTIFICATE")
 
     __page_size: int = 100
+    __web_api_retry_limit: int = 2
     
 
 
@@ -36,14 +37,25 @@ class Request:
         
     @staticmethod
     def get_method_web_api(url: str) -> requests.Response:
-
-        response = Request.__user_session.session.get(
-            url=url,
-            params={
-                "_t": Request.__get_timestamp()
-            }
-        )
-        result: dict = requestHelpers.get_request_result(url, response)
+        
+        retry_counter: int = 0
+        
+        while(retry_counter < Request.__web_api_retry_limit):
+            response = Request.__user_session.session.get(
+                url=url,
+                params={
+                    "_t": Request.__get_timestamp()
+                }
+            )
+            try:
+                result: dict = requestHelpers.get_request_result(url, response)
+                break
+            except requests.exceptions.JSONDecodeError:
+                Request.__user_session.login()
+            except Exception:
+                pass
+            retry_counter = retry_counter + 1
+            
         return result
 
     @staticmethod

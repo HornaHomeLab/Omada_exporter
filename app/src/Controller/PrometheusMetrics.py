@@ -21,4 +21,6 @@ class PrometheusMetrics:
     @staticmethod
     def update_access_point_metrics():
         devices = Omada.Controller.AccessPoint.get_info()
-        Prometheus.AccessPoint.update_metrics(devices)
+        ports = Omada.Controller.AccessPoint.get_port_info()
+        radios = Omada.Controller.AccessPoint.get_radio_info()
+        Prometheus.AccessPoint.update_metrics(devices, ports, radios)

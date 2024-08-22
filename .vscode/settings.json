@@ -3,6 +3,7 @@
         "dotenv",
         "OMADA",
         "omadac",
+        "Pkts",
         "pvid",
         "pydantic",
         "rssi",
