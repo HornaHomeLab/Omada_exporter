@@ -39,7 +39,7 @@ class AccessPoint:
                         {
                             "accessPointName": ap.name,
                             "accessPointMac": ap.mac,
-                            **ap_port_response,
+                            **ap_port_response.get("wiredUplink"),
                         }
                     )
                 )

@@ -11,7 +11,7 @@ class AccessPointPort(BaseModel):
     uplinkDeviceType: str = Field(alias="type", default=None)
     linkSpeed: str = Field(alias="rate", default=None)
     duplex: str = Field(default=None)
-    tx: int = Field(alias="upPackets", default=0)
+    tx: int = Field(alias="upBytes", default=0)
     rx: int = Field(alias="downBytes", default=0)
 
     def __init__(self, **data):
