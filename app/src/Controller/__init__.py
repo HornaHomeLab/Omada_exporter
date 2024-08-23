@@ -1,1 +1,2 @@
 from src.Controller.PrometheusMetrics import PrometheusMetrics
+from src.Controller.HealthCheck import HealthCheck

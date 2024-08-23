@@ -41,7 +41,8 @@ class Request:
         retry_counter: int = 0
         
         while(retry_counter < Request.__web_api_retry_limit):
-            response = Request.__user_session.session.get(
+            session = Request.__user_session.get_session()
+            response = session.get(
                 url=url,
                 params={
                     "_t": Request.__get_timestamp()
