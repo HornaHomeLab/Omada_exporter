@@ -1,0 +1,11 @@
+services:
+  Omada_exporter:
+      image: ${IMAGE_NAME}
+      build:
+        context: ./
+        dockerfile: Dockerfile
+      container_name: ${CONTAINER_NAME}
+      hostname: ${HOSTNAME}
+      restart: unless-stopped
+      ports:
+        - ${EXTERNAL_PORT}:8000
