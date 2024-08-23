@@ -1,4 +1,6 @@
 # Omada_exporter
+##### version: 0.0.1
+
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
 Due to current limitations of Omada OpenAPI, 
