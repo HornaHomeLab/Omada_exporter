@@ -12,10 +12,10 @@ class RouterPort(BaseModel):
     mac: str
     port: int
     portName: str = Field(alias="name")
-    portDesc: str = Field(default=None)
+    portDesc: str = Field(default="null")
     mode: str
-    ip: str = Field(default=None)
-    poe: bool = Field(default=None)
+    ip: str = Field(default="null")
+    poe: str = Field(default="False")
     linkStatus: str = Field(alias="status")
     internetState: str = Field(default="Offline")
     online: str = Field(alias="onlineDetection")
@@ -23,7 +23,7 @@ class RouterPort(BaseModel):
     duplex: str
     tx: int
     rx: int
-    protocol: str = Field(alias="proto", default=None)
+    protocol: str = Field(alias="proto", default="null")
     wanPortIpv6Config: WanPortIpv6Config = Field(default=None)
     wanPortIpv4Config: WanPortIpv4Config = Field(default=None)
     latency: int
@@ -39,13 +39,15 @@ class RouterPort(BaseModel):
             data["duplex"] = -1
             data["online"] = 0
             data["latency"] = 0
-            data["loss"] = None
+            data["loss"] = 1
 
         # port is in lan mode
         if data["mode"] == 1:
             data["onlineDetection"] = -1
             data["latency"] = 0
             data["loss"] = 0
+            
+        data["poe"] = str( data.get("poe","null"))
 
         data = modelFields.map_data_values(data, Port.router_value_map)
         super().__init__(**data)

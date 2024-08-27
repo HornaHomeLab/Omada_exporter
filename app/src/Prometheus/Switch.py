@@ -1,13 +1,15 @@
-from prometheus_client import Gauge
+from prometheus_client import Gauge, Info
 
 import src.Omada as Omada
 from src.Omada.Model.Ports import SwitchPort
-from src.Prometheus.BaseClient import BaseDeviceMetrics, labels
+from src.Prometheus.BaseClient import BaseDeviceMetrics
 
-switch_labels = [
+switch_identity_labels = [
     "name",
     "mac",
-    "port",
+    "port"
+]
+switch_port_info = [
     "portName",
     "disable",
     "profileName",
@@ -15,16 +17,19 @@ switch_labels = [
     "linkStatus",
     "linkSpeed",
     "duplex",
-    "poe",
+    "poe"
 ]
 
 
 class Switch(BaseDeviceMetrics):
-    ports_rx: Gauge = Gauge(
-        "switch_port_rx", "Sum of received bytes", switch_labels
+    port_rx: Gauge = Gauge(
+        "switch_port_rx", "Sum of received bytes", switch_identity_labels
     )
-    ports_tx: Gauge = Gauge(
-        "switch_port_tx", "Sum of transmitted bytes", switch_labels
+    port_tx: Gauge = Gauge(
+        "switch_port_tx", "Sum of transmitted bytes", switch_identity_labels
+    )
+    port_info: Info = Info(
+        "switch_port", "Switch port information details", switch_identity_labels
     )
 
     @staticmethod
@@ -35,24 +40,11 @@ class Switch(BaseDeviceMetrics):
     @staticmethod
     def __update_port_status(switch_port_metrics: list[Omada.Model.Ports.SwitchPort]):
         for port in switch_port_metrics:
-            port_labels: dict[str, str] = Switch.get_port_labels(port)
-            (
-                Switch
-                .ports_rx
-                .labels(**(port_labels))
-                .set(port.rx)
-            )
-            (
-                Switch
-                .ports_tx
-                .labels(**(port_labels))
-                .set(port.tx)
-            )
+            port_labels: dict[str, str] = Switch.get_labels(port, switch_identity_labels)
+            
+            Switch.port_rx.labels(**(port_labels)).set(port.rx)
+            Switch.port_tx.labels(**(port_labels)).set(port.tx)
+            Switch.port_info.labels(**(port_labels)).info(Switch.get_labels(port,switch_port_info))
+            
 
-    @staticmethod
-    def get_port_labels(port: SwitchPort):
-        return {
-            k: v
-            for k, v in port.model_dump().items()
-            if k not in ["rx", "tx"]
-        }
+

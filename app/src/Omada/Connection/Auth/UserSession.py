@@ -38,12 +38,16 @@ class UserSession:
         url = self.__is_logged_in_endpoint.format(
             base_url=self.__base_url
         )
-        response: dict = self.session.get(
-            url=url,
-            params={
-                "_t": int(datetime.datetime.now().timestamp() * 1000)
-            }
-        ).json()
+        try:
+            response: dict = self.session.get(
+                url=url,
+                params={
+                    "_t": int(datetime.datetime.now().timestamp() * 1000)
+                }
+            ).json()
+        except:
+            return False
+
         result: dict = response.get("result")
 
         return result.get("login")

@@ -9,13 +9,13 @@ class SwitchPort(BaseModel):
     mac: str = Field(alias="switchMac")
     port: int
     portName: str = Field(alias="name")
-    disable: bool
+    disable: str
     profileName: str
     operation: str
     linkStatus: str
     linkSpeed: str
     duplex: str
-    poe: bool
+    poe: str
     tx: int
     rx: int
 
@@ -23,5 +23,8 @@ class SwitchPort(BaseModel):
         if data["linkStatus"] == 0:
             data["linkSpeed"] = -1
             data["duplex"] = -1
+            
+        data["poe"] = str(data["poe"])
+        data["disable"] = str(data["disable"])
         data = modelFields.map_data_values(data, Port.switch_value_map)
         super().__init__(**data)

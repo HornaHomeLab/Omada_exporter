@@ -15,13 +15,13 @@ value_map: dict[str, dict] = {
 
 class WanPortIpv6Config(BaseModel):
     enable: str
-    proto: str = Field(default=None)
+    proto: str = Field(default="null")
     addr: str
     gateway: str
     priDns: str
     sndDns: str
-    internetState: str = Field(default=None)
-    mac: str = Field(default=None)
+    internetState: str = Field(default="null")
+    portMac: str = Field(default="null",alias="mac")
     
     def __init__(self, **data):
         data = modelFields.map_data_values(data, value_map)
