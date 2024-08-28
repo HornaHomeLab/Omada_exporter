@@ -1,3 +1,4 @@
+import datetime
 import src.Omada.Model as Model
 import src.Omada.Connection as Connection
 from src.Omada.Controller.Devices import Devices
@@ -6,6 +7,7 @@ from src.Omada.Controller.Devices import Devices
 class Switch:
 
     __switch_info_path: str = "/openapi/v1/{omadacId}/sites/{siteId}/switches/{switchMac}"
+    __switch_port_stats_path: str = "/api/v2/sites/{siteId}/stat/switches/{switchMac}/5min"
     __switch_port_info_path: str = "/api/v2/sites/{siteId}/switches/{switchMac}/ports"
 
     @staticmethod
@@ -30,6 +32,7 @@ class Switch:
     def get_port_info():
 
         switch_port: list[Model.Ports.SwitchPort] = []
+        switch_port_stats: list[Model.Ports.SwitchPortStats] = []
 
         for switch in Devices.switches:
             switch_port_response: dict = Connection.Request.get(
@@ -37,6 +40,7 @@ class Switch:
                     "switchMac": switch.mac
                 }
             )
+
             for port in switch_port_response:
                 switch_port.append(
                     Model.Ports.SwitchPort(
@@ -48,8 +52,47 @@ class Switch:
                         )
                     )
                 )
+            switch_port_stats = switch_port_stats + Switch.__get_port_stats(
+                switch.mac, switch.name, len(switch_port_response)
+            )
 
-        return switch_port
+        return switch_port, switch_port_stats
+
+    @staticmethod
+    def __get_port_stats(switch_mac: str, switch_name: str, port_count: int):
+
+        switch_port_stats: list[Model.Ports.SwitchPortStats] = []
+
+        current_time = int(datetime.datetime.now().timestamp())
+        switch_port_stats_response: dict = Connection.Request.post(
+            Switch.__switch_port_stats_path, {
+                "switchMac": switch_mac
+            },
+            {
+                "attrs": [
+                    "txRate",
+                    "rxRate"
+                ],
+                "ports": list(range(1, port_count)),
+                "start": current_time - 301,
+                "end":   current_time
+            }
+        ).get("statList")[-1]
+
+        for stats in switch_port_stats_response.get("ports"):
+            switch_port_stats.append(
+                Model.Ports.SwitchPortStats(
+                    **(
+                        {
+                            **stats,
+                            "switchMac": switch_mac,
+                            "switchName": switch_name
+                        }
+                    )
+                )
+            )
+
+        return switch_port_stats
 
     @staticmethod
     def __get_port_detail(port: dict):

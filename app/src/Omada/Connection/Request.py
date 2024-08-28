@@ -86,9 +86,16 @@ class Request:
         return result
 
     @staticmethod
-    def post(path: str, body: dict = None):
-        url = Request.__get_url(path)
+    def post(path: str, arguments: dict = {}, body: dict = None):
+        url = Request.__get_url(path,arguments)
+        
+        if path.startswith("/api/") and path != "/api/info":
+            return Request.__post_method_web_api(url, body)
+        elif path.startswith("/openapi/") or path == "/api/info":
+            return Request.__post_method_openapi(url,body)
 
+    @staticmethod
+    def __post_method_openapi(url: str, body: dict = None):
         if body is not None:
             response = requests.post(
                 url=url, json=body, verify=Request.__verify_certificate
@@ -98,7 +105,19 @@ class Request:
                 url=url, verify=Request.__verify_certificate)
 
         return requestHelpers.get_request_result(url, response)
+    
+    @staticmethod
+    def __post_method_web_api(url, body):
 
+        session = Request.__user_session.get_session()
+        response = session.post(
+            url=url,
+            json=body
+        )
+        
+        return requestHelpers.get_request_result(url, response)
+        
+        
     @staticmethod
     def __get_url(path: str, arguments: dict = {}) -> str:
         if path.startswith("/api/") and path != "/api/info":
@@ -116,7 +135,10 @@ class Request:
             base=Request.__base_url,
             endpoint_path=path
         )
+        
 
+        
+        
     @staticmethod
     def __get_headers(include_auth_headers: bool = True) -> dict:
         if include_auth_headers:
