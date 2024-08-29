@@ -1,20 +1,22 @@
 # Omada_exporter
-##### version: 0.0.1
+##### version: 0.0.2
 
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
-Due to current limitations of Omada OpenAPI, 
-both Web API and OpenAPI are supported.
+Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are supported.
 
 ## How to run
-Review Environmental variables and create the `.env` file to 
-provide necessary values for docker compose to start.
+Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
 
-### Environmental variables
+> [!IMPORTANT] 
+> `.env` file filled with data from table should be saved in `./app` directory before building docker image.
+
+### Parameters
 | Name | Description |
 |------|-------------|
 |`BASE_URL`|The URL to Omada portal, including protocol and port. Both http and https are supported|
 |`VERIFY_CERTIFICATE`|Mostly related to HTTPS if you are using untrusted certificate|
+|`SITE_NAME`|Name of the site to monitor| 
 |`OMADA_CLIENT_ID`|Client ID for app created in section Platform Integration, used for OpenAPI requests|
 |`OMADA_CLIENT_SECRET`|Client Secret for app created in section Platform Integration, used for OpenAPI requests|
 |`OMADA_USER`|User name of the account which will be used to authenticate to the WebAPI|
