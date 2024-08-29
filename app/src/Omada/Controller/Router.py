@@ -9,6 +9,7 @@ class Router:
     __router_info_path: str = "/openapi/v1/{omadacId}/sites/{siteId}/gateways/{gatewayMac}"
     __switch_port_stats_path: str = "/api/v2/sites/{siteId}/stat/{gatewayMac}/5min?type=gateway"
     __router_port_info_path: str = "/api/v2/sites/{siteId}/gateways/{gatewayMac}"
+
     @staticmethod
     def get_info() -> list[Model.Router]:
 
@@ -50,15 +51,21 @@ class Router:
                         )
                     )
                 )
+            # Needed to fix Omada bug, that it records traffic on port with disconnected cable
+            port_status = {}
+            for port in router_port:
+                port_status[port.port] = port.linkSpeed
+
             router_port_stats = router_port_stats + Router.__get_port_stats(
-                router.mac, router.name, len(router_port_response.get("portStats"))
+                router.mac, router.name,
+                len(router_port_response.get("portStats")),
+                port_status
             )
-            
-                
+
         return router_port, router_port_stats
 
     @staticmethod
-    def __get_port_stats(router_mac: str, router_name: str, port_count: int):
+    def __get_port_stats(router_mac: str, router_name: str, port_count: int, port_status):
 
         router_port_stats: list[Model.Ports.SwitchPortStats] = []
 
@@ -81,16 +88,28 @@ class Router:
         )[-1]
 
         for stats in router_port_stats_response.get("ports"):
-            router_port_stats.append(
-                Model.Ports.RouterPortStats(
-                    **(
-                        {
-                            **stats,
+            # Fixes Omada bug, that it records traffic on port with disconnected cable
+            if port_status.get(stats["port"]) == "Down":
+                router_port_stats.append(
+                    Model.Ports.RouterPortStats(
+                        **{
+                            "port": stats["port"],
                             "mac": router_mac,
                             "gatewayName": router_name
                         }
                     )
                 )
-            )
+            else:
+                router_port_stats.append(
+                    Model.Ports.RouterPortStats(
+                        **(
+                            {
+                                **stats,
+                                "mac": router_mac,
+                                "gatewayName": router_name
+                            }
+                        )
+                    )
+                )
 
         return router_port_stats
