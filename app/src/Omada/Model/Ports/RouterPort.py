@@ -43,6 +43,7 @@ class RouterPort(BaseModel):
 
         # port is in lan mode
         if data["mode"] == 1:
+            data["portDesc"] = "downLink"
             data["onlineDetection"] = -1
             data["latency"] = 0
             data["loss"] = 0

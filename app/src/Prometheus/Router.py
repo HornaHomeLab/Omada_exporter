@@ -24,6 +24,9 @@ router_port_info = [
 
 
 class Router(BaseDeviceMetrics):
+    temp: Gauge = Gauge(
+        "router_temperature", "Router temperature in Celsius", ["name", "mac"]
+    )
     port_rx: Gauge = Gauge(
         "router_port_rx", "Sum of received bytes", router_identity_labels
     )
@@ -72,6 +75,7 @@ class Router(BaseDeviceMetrics):
         router_port_stats: list[Omada.Model.Ports.RouterPortStats]
         ):
         Router.update_base_metrics(router_metrics)
+        Router.__update_temperature(router_metrics)
         Router.__update_port_status(router_port_metrics)
         Router.__update_port_statistics(router_port_stats)
 
@@ -97,8 +101,7 @@ class Router(BaseDeviceMetrics):
     @staticmethod
     def __update_port_statistics(router_port_stats: list[Omada.Model.Ports.RouterPortStats]):
         for port in router_port_stats:
-            port_labels: dict[str, str] = Router.get_labels(
-                port, router_identity_labels)
+            port_labels: dict[str, str] = Router.get_labels(port, router_identity_labels)
 
             Router.port_rx_rate.labels(**(port_labels)).set(port.rxRate)
             Router.port_tx_rate.labels(**(port_labels)).set(port.txRate)
@@ -106,3 +109,9 @@ class Router(BaseDeviceMetrics):
             Router.port_tx_pkts.labels(**(port_labels)).set(port.txPkts)
             Router.port_drop_pkts.labels(**(port_labels)).set(port.dropPkts)
             Router.port_err_pkts.labels(**(port_labels)).set(port.errPkts)
+
+    @staticmethod
+    def __update_temperature(router_metrics: list[Omada.Model.Router]):
+        for router in router_metrics:
+            labels = Router.get_labels(router, router_identity_labels)
+            Router.temp.labels(**labels).set(router.temp)
