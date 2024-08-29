@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.helpers.modelFields as modelFields
 
 
@@ -35,7 +34,7 @@ class RouterPort(BaseModel):
     mirrorEnable: bool = Field(default=False)
     mirroredPorts: list[int] = Field(default=None)
     mirrorMode: str = Field(default=None)
-    pvid: int| str = Field(default="wan")
+    pvid: int | str = Field(default="wan")
 
     def __init__(self, **data):
         data = modelFields.map_data_values(data, value_map)

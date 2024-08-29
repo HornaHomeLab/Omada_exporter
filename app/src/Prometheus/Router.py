@@ -1,5 +1,4 @@
 from prometheus_client import Gauge, Info
-
 import src.Omada as Omada
 from src.Prometheus.BaseClient import BaseDeviceMetrics
 

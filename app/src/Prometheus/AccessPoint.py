@@ -1,5 +1,4 @@
 from prometheus_client import Gauge, Info
-
 import src.Omada as Omada
 from src.Prometheus.BaseClient import BaseDeviceMetrics
 
@@ -29,6 +28,7 @@ access_point_radio_info =[
     "bandWidth",
     "mode",
 ]
+
 
 class AccessPoint(BaseDeviceMetrics):
     port_rx: Gauge = Gauge(

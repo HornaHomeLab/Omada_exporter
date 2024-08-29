@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class AccessPointRadioStats(BaseModel):
     name: str = Field(alias="accessPointName")
     mac: str = Field(alias="accessPointMac")
-    frequency: str 
+    frequency: str
     tx: int
     rx: int
     # txPkts: int

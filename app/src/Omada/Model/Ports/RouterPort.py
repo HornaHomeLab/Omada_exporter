@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.Model.Labels.Port as Port
 import src.Omada.helpers.modelFields as modelFields
 import src.Omada.helpers.modelFields as modelFields
@@ -30,7 +29,7 @@ class RouterPort(BaseModel):
     loss: float | None
 
     def __init__(self, **data):
-        
+
         # port is disconnected
         if data["status"] == 0:
             data["mode"] = -1
@@ -47,8 +46,8 @@ class RouterPort(BaseModel):
             data["onlineDetection"] = -1
             data["latency"] = 0
             data["loss"] = 0
-            
-        data["poe"] = str( data.get("poe","null"))
+
+        data["poe"] = str(data.get("poe", "null"))
 
         data = modelFields.map_data_values(data, Port.router_value_map)
         super().__init__(**data)

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class ApRadioTraffic(BaseModel):
     name: str
     mac: str

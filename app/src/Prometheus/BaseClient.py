@@ -39,16 +39,6 @@ class BaseDeviceMetrics:
                 BaseDeviceMetrics.get_labels(device,device_info)
             )
             
-            
-
-    @staticmethod
-    def __get_values_for_labels(model: Omada.Model.Switch | Omada.Model.AccessPoint | Omada.Model.Router):
-        result = {}
-        model_dump: dict[str, any] = model.model_dump()
-        for label in labels:
-            result[label] = model_dump.get(label)
-
-        return result
 
     @staticmethod
     def get_labels(

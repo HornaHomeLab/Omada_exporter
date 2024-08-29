@@ -1,7 +1,5 @@
 from prometheus_client import Gauge, Info
-
 import src.Omada as Omada
-from src.Omada.Model.Ports import SwitchPort
 from src.Prometheus.BaseClient import BaseDeviceMetrics
 
 switch_identity_labels = [

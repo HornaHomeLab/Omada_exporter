@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class WanPortIpv4Config(BaseModel):
     ip: str
     ip2: str = Field(default="null")

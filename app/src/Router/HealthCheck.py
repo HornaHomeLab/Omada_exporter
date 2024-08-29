@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 import src.Controller as Controller
 
 HealthCheck = APIRouter()

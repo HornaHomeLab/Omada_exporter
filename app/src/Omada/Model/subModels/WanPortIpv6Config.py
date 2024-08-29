@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.helpers.modelFields as modelFields
 
 value_map: dict[str, dict] = {
@@ -13,6 +12,7 @@ value_map: dict[str, dict] = {
     }
 }
 
+
 class WanPortIpv6Config(BaseModel):
     enable: str
     proto: str = Field(default="null")
@@ -21,8 +21,8 @@ class WanPortIpv6Config(BaseModel):
     priDns: str
     sndDns: str
     internetState: str = Field(default="null")
-    portMac: str = Field(default="null",alias="mac")
-    
+    portMac: str = Field(default="null", alias="mac")
+
     def __init__(self, **data):
         data = modelFields.map_data_values(data, value_map)
         super().__init__(**data)

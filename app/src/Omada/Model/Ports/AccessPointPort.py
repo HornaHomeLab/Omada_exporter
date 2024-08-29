@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.Model.Labels.Port as Port
 import src.Omada.helpers.modelFields as modelFields
 

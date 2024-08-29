@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class RouterPortStats(BaseModel):
     name: str = Field(alias="gatewayName")
     mac: str

@@ -1,10 +1,7 @@
 from pydantic import BaseModel, Field
-
-import src.Omada.Model.Labels.Port as Port
-import src.Omada.helpers.modelFields as modelFields
-
 from src.Omada.Model.subModels.ApRadioConfig import ApRadioConfig
 from src.Omada.Model.subModels.ApRadioTraffic import ApRadioTraffic
+
 
 class AccessPointRadio(BaseModel):
     name: str = Field(alias="accessPointName")
@@ -13,7 +10,7 @@ class AccessPointRadio(BaseModel):
     radioTraffic50GHz: ApRadioTraffic = Field(alias="radioTraffic5g")
     radioConfig24GHz: ApRadioConfig = Field(alias="wp2g")
     radioConfig50GHz: ApRadioConfig = Field(alias="wp5g")
-    
+
     def __init__(self, **data):
         data["radioTraffic2g"]["frequency"] = "2.4 GHz"
         data["radioTraffic2g"]["mac"] = data["accessPointMac"]
@@ -28,4 +25,3 @@ class AccessPointRadio(BaseModel):
         data["wp5g"]["mac"] = data["accessPointMac"]
         data["wp5g"]["name"] = data["accessPointName"]
         super().__init__(**data)
-

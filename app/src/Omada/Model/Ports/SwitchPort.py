@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 import src.Omada.Model.Labels.Port as Port
 import src.Omada.helpers.modelFields as modelFields
 
@@ -23,7 +22,7 @@ class SwitchPort(BaseModel):
         if data["linkStatus"] == 0:
             data["linkSpeed"] = -1
             data["duplex"] = -1
-            
+
         data["poe"] = str(data["poe"])
         data["disable"] = str(data["disable"])
         data = modelFields.map_data_values(data, Port.switch_value_map)
