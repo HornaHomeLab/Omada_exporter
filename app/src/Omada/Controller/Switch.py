@@ -80,17 +80,20 @@ class Switch:
         ).get("statList")[-1]
 
         for stats in switch_port_stats_response.get("ports"):
-            switch_port_stats.append(
-                Model.Ports.SwitchPortStats(
-                    **(
-                        {
-                            **stats,
-                            "switchMac": switch_mac,
-                            "switchName": switch_name
-                        }
+            try:
+                switch_port_stats.append(
+                    Model.Ports.SwitchPortStats(
+                        **(
+                            {
+                                **stats,
+                                "switchMac": switch_mac,
+                                "switchName": switch_name
+                            }
+                        )
                     )
                 )
-            )
+            except:
+                pass
 
         return switch_port_stats
 

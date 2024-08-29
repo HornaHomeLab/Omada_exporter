@@ -7,7 +7,7 @@ from src.Omada.Controller.Devices import Devices
 class Router:
 
     __router_info_path: str = "/openapi/v1/{omadacId}/sites/{siteId}/gateways/{gatewayMac}"
-    __switch_port_stats_path: str = "/api/v2/sites/{siteId}/stat/{gatewayMac}/5min?type=gateway"
+    __router_port_stats_path: str = "/api/v2/sites/{siteId}/stat/{gatewayMac}/5min?type=gateway"
     __router_port_info_path: str = "/api/v2/sites/{siteId}/gateways/{gatewayMac}"
 
     @staticmethod
@@ -71,7 +71,7 @@ class Router:
 
         current_time = int(datetime.datetime.now().timestamp())
         router_port_stats_response: dict = Connection.Request.post(
-            Router.__switch_port_stats_path, {
+            Router.__router_port_stats_path, {
                 "gatewayMac": router_mac
             },
             {
@@ -95,21 +95,30 @@ class Router:
                         **{
                             "port": stats["port"],
                             "mac": router_mac,
-                            "gatewayName": router_name
+                            "gatewayName": router_name,
+                            "tx": 0,
+                            "rx": 0,
+                            "txPkts": 0,
+                            "rxPkts": 0,
+                            "dropPkts": 0,
+                            "errPkts": 0,
                         }
                     )
                 )
             else:
-                router_port_stats.append(
-                    Model.Ports.RouterPortStats(
-                        **(
-                            {
-                                **stats,
-                                "mac": router_mac,
-                                "gatewayName": router_name
-                            }
+                try:
+                    router_port_stats.append(
+                        Model.Ports.RouterPortStats(
+                            **(
+                                {
+                                    **stats,
+                                    "mac": router_mac,
+                                    "gatewayName": router_name
+                                }
+                            )
                         )
                     )
-                )
+                except:
+                    pass
 
         return router_port_stats
