@@ -51,6 +51,19 @@ class Router(BaseDeviceMetrics):
     port_ipv6_config: Info = Info(
         "router_port_ipv6_config", "Router port ipv6 config", router_identity_labels
     )
+    port_rx_pkts: Gauge = Gauge(
+        "router_port_rx_pkts", "Received packets", router_identity_labels
+    )
+    port_tx_pkts: Gauge = Gauge(
+        "router_port_tx_pkts", "Transmitted packets", router_identity_labels
+    )
+    port_drop_pkts: Gauge = Gauge(
+        "router_port_drop_pkts", "Dropped packets", router_identity_labels
+    )
+    port_err_pkts: Gauge = Gauge(
+        "router_port_err_pkts", "Errored packets", router_identity_labels
+    )
+
 
     @staticmethod
     def update_metrics(
@@ -89,3 +102,7 @@ class Router(BaseDeviceMetrics):
 
             Router.port_rx_rate.labels(**(port_labels)).set(port.rxRate)
             Router.port_tx_rate.labels(**(port_labels)).set(port.txRate)
+            Router.port_rx_pkts.labels(**(port_labels)).set(port.rxPkts)
+            Router.port_tx_pkts.labels(**(port_labels)).set(port.txPkts)
+            Router.port_drop_pkts.labels(**(port_labels)).set(port.dropPkts)
+            Router.port_err_pkts.labels(**(port_labels)).set(port.errPkts)
