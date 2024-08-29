@@ -3,10 +3,17 @@
 
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
+It is FastAPI based application to expose basic network devices metrics for Prometheus Server to scrape.
+Omada controller is queried when `/metrics` endpoint is accessed, 
+which means that if this exporter is not in use it do not generate traffic to omada controller.
+
 Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are supported.
 
 ## How to run
-Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
+1. Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
+2. Start docker compose using `docker compose up -d`
+3. Metrics will be available at `http://<your_hostname>:51772/metrics`
+
 
 > [!IMPORTANT] 
 > `.env` file filled with data from table should be saved in `./app` directory before building docker image.

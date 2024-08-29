@@ -29,7 +29,7 @@ class Switch:
         return result
 
     @staticmethod
-    def get_port_info():
+    def get_port_info() -> tuple[list[Model.Ports.SwitchPort], list[Model.Ports.SwitchPortStats]]:
 
         switch_port: list[Model.Ports.SwitchPort] = []
         switch_port_stats: list[Model.Ports.SwitchPortStats] = []
