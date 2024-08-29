@@ -27,4 +27,5 @@ class PrometheusMetrics:
         devices = Omada.Controller.AccessPoint.get_info()
         ports = Omada.Controller.AccessPoint.get_port_info()
         radios = Omada.Controller.AccessPoint.get_radio_info()
-        Prometheus.AccessPoint.update_metrics(devices, ports, radios)
+        radio_stats = Omada.Controller.AccessPoint.get_radio_stats()
+        Prometheus.AccessPoint.update_metrics(devices, ports, radios, radio_stats)
