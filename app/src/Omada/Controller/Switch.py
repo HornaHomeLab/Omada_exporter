@@ -73,7 +73,7 @@ class Switch:
                     "txRate",
                     "rxRate"
                 ],
-                "ports": list(range(1, port_count)),
+                "ports": list(range(1, port_count +1)),
                 "start": current_time - 301,
                 "end":   current_time
             }
