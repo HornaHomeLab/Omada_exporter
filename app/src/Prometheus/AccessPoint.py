@@ -61,6 +61,12 @@ class AccessPoint(BaseDeviceMetrics):
     radio_tx_rate: Gauge = Gauge(
         "radio_tx_rate", "Transmitted bits per second", access_point_radio_labels
     )
+    radio_rx_retry_pkts_rate: Gauge = Gauge(
+        "radio_rx_retry_pkts_rate", "Received packets retry", access_point_radio_labels
+    )
+    radio_tx_retry_pkts_rate: Gauge = Gauge(
+        "radio_tx_retry_pkts_rate", "Transmitted packets retry", access_point_radio_labels
+    )
     radio_rx_pkts: Gauge = Gauge(
         "radio_rx_pkts", "Sum of received packets", access_point_radio_labels
     )
@@ -141,3 +147,5 @@ class AccessPoint(BaseDeviceMetrics):
             radio_labels = AccessPoint.get_labels(radio,access_point_radio_labels)
             AccessPoint.radio_rx_rate.labels(**radio_labels).set(radio.rx)
             AccessPoint.radio_tx_rate.labels(**radio_labels).set(radio.tx)
+            AccessPoint.radio_rx_retry_pkts_rate.labels(**radio_labels).set(radio.rxRetryPkts)
+            AccessPoint.radio_tx_retry_pkts_rate.labels(**radio_labels).set(radio.txRetryPkts)

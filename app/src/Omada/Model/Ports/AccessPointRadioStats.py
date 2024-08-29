@@ -11,7 +11,7 @@ class AccessPointRadioStats(BaseModel):
     # rxPkts: int
     # txDropPkts: int
     # rxDropPkts: int
-    # txRetryPkts: int
-    # rxRetryPkts: int
+    txRetryPkts: int
+    rxRetryPkts: int
     # txErrPkts: int
     # rxErrPkts: int

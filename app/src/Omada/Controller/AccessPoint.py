@@ -89,7 +89,11 @@ class AccessPoint:
                         "tx2g",
                         "rx2g",
                         "tx5g",
-                        "rx5g"
+                        "rx5g",
+                        "rxRetryPkts2g",
+                        "txRetryPkts2g",
+                        "rxRetryPkts5g",
+                        "txRetryPkts5g",
                     ],
                     "start": current_time - 301,
                     "end":   current_time
