@@ -1,3 +1,9 @@
+<p float="left">
+  <img src="/Pictures/prometheus_logo.png" width="100" />
+  <img src="/Pictures/omada_logo.png" width="100" />
+  <img src="/Pictures/fastapi_logo.png" height="100" />
+</p>
+
 # Omada_exporter
 ##### version: 0.0.3
 
