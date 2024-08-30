@@ -11,6 +11,15 @@ Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are suppor
 
 Find available exporter's metrics [here](/app/src/Prometheus/README.md#supported-metrics)
 
+## Sample Grafana dashboards
+### Router
+![image](/Grafana/Pictures/Router.png)
+### Switch
+![image](/Grafana/Pictures/Switch.png)
+### Access Point
+![image](/Grafana/Pictures/AccessPoint.png)
+
+
 ## How to run
 1. Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
 2. Start docker compose using `docker compose up -d`
