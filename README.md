@@ -2,6 +2,7 @@
   <img src="/Pictures/prometheus_logo.png" width="100" />
   <img src="/Pictures/omada_logo.png" width="100" />
   <img src="/Pictures/fastapi_logo.png" height="100" />
+  <img src="/Pictures/docker_logo.png" height="100" />
 </p>
 
 # Omada_exporter
@@ -9,7 +10,7 @@
 
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
-It is FastAPI based application to expose basic network devices' metrics for Prometheus Server to scrape.
+It is containerized FastAPI based application to expose basic network devices' metrics for Prometheus Server to scrape.
 Omada controller is queried when `/metrics` endpoint is accessed, 
 which means that if this exporter is not in use it do not generate traffic to omada controller.
 
@@ -30,8 +31,9 @@ Dashboards are available for import [here](/Grafana/Dashboards/)
 
 ## How to run
 1. Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
-2. Start docker compose using `docker compose up -d`
-3. Metrics will be available at `http://<your_hostname>:51772/metrics`
+2. Build docker image using `docker compose build`
+3. Start docker compose using `docker compose up -d`
+4. Metrics will be available at `http://<your_hostname>:51772/metrics`
 
 
 > [!IMPORTANT] 
