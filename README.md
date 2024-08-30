@@ -31,7 +31,7 @@ Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are suppor
 
 ### Omada Auth objects permissions
 - **OpenAPI Application** (*OMADA_CLIENT*) - It can be created at the Global management level of the controller in path: 
-`Setttings -> Platform Integration`. 
+`Settings -> Platform Integration`. 
 OpenApi app needs administrator role assigned, 
 to be able to query all endpoints used within this exporter
 - **User Account** (*OMADA_USER*) - it is a standard user account ,
