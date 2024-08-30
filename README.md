@@ -9,6 +9,8 @@ which means that if this exporter is not in use it do not generate traffic to om
 
 Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are supported.
 
+Find available exporter's metrics [here](/app/src/Prometheus/README.md#supported-metrics)
+
 ## How to run
 1. Create the `.env` file to provide necessary values specified in [Parameters](#parameters) section.
 2. Start docker compose using `docker compose up -d`
