@@ -18,6 +18,8 @@ Due to current limitations of Omada OpenAPI, both Web API and OpenAPI are suppor
 Find available exporter's metrics [here](/app/src/Prometheus/README.md#supported-metrics)
 
 ## Sample Grafana dashboards
+Dashboards are available for import [here](/Grafana/Dashboards/)
+
 ### Router
 ![image](/Grafana/Pictures/Router.png)
 ### Switch
