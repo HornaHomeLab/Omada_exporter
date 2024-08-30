@@ -1,9 +1,9 @@
 # Omada_exporter
-##### version: 0.0.2
+##### version: 0.0.3
 
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
-It is FastAPI based application to expose basic network devices metrics for Prometheus Server to scrape.
+It is FastAPI based application to expose basic network devices' metrics for Prometheus Server to scrape.
 Omada controller is queried when `/metrics` endpoint is accessed, 
 which means that if this exporter is not in use it do not generate traffic to omada controller.
 

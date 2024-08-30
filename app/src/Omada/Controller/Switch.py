@@ -11,7 +11,7 @@ class Switch:
     __switch_port_info_path: str = "/api/v2/sites/{siteId}/switches/{switchMac}/ports"
 
     @staticmethod
-    def get_info() -> list[Model.Router]:
+    def get_info() -> list[Model.Switch]:
 
         result = [
             Model.Switch(

@@ -1,4 +1,4 @@
-# Request
+# Omada Request
 Automatically detects required Authentication type (*OpenAPI*, *UserBased*).
 
 Currently supported methods:
