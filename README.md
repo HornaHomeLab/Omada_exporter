@@ -6,7 +6,7 @@
 </p>
 
 # Omada_exporter
-##### version: 0.0.3
+##### version: 1.0.0
 
 Prometheus Exporter for [TP-Link Omada](https://www.tp-link.com/en/business-networking/omada/controller/) SDN.
 
