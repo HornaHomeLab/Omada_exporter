@@ -39,17 +39,20 @@ class Router:
                 }
             )
             for port in router_port_response.get("portStats"):
-                router_port.append(
-                    Model.Ports.RouterPort(
-                        **(
-                            {
-                                "gatewayName": router.name,
-                                "mac": router.mac,
-                                **port,
-                            }
+                try:
+                    router_port.append(
+                        Model.Ports.RouterPort(
+                            **(
+                                {
+                                    "gatewayName": router.name,
+                                    "mac": router.mac,
+                                    **port,
+                                }
+                            )
                         )
-                    )
                 )
+                except:
+                    pass
             # Needed to fix Omada bug, that it records traffic on port with disconnected cable
             port_status = {}
             for port in router_port:
