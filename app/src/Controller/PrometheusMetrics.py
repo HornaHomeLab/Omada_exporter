@@ -19,8 +19,8 @@ class PrometheusMetrics:
     @staticmethod
     def __update_router_metrics():
         devices = Omada.Controller.Router.get_info()
-        ports, stats = Omada.Controller.Router.get_port_info()
-        Prometheus.Router.update_metrics(devices, ports, stats)
+        ports = Omada.Controller.Router.get_port_info()
+        Prometheus.Router.update_metrics(devices, ports)
 
     @staticmethod
     def __update_access_point_metrics():
