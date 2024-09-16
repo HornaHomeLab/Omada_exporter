@@ -29,7 +29,7 @@ class Router:
         return result
 
     @staticmethod
-    def get_port_info() -> Model.Ports.RouterPort:
+    def get_port_info() -> list[Model.Ports.RouterPort]:
         router_port: list[Model.Ports.RouterPort] = []
 
         for router in Devices.gateways:
