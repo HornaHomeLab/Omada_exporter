@@ -1,11 +1,16 @@
+from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry import trace
 import os
 import atexit
 from dotenv import load_dotenv
 import requests
 import datetime
 import src.Omada.Connection.Auth as Auth
-
+from src.Observability.Log.logger import logger
 load_dotenv()
+
+
+tracer = trace.get_tracer("Request-tracer")
 
 
 class Request:
@@ -25,122 +30,285 @@ class Request:
     __open_api_retry_limit: int = 2
 
     @staticmethod
+    @tracer.start_as_current_span("Request.get")
     def get(path: str, arguments: dict = {}, include_auth: bool = True, include_params: bool = True, page: int = 1):
-        url = Request.__get_url(path, arguments)
+        extra_data = {
+            "path": path,
+            "arguments": arguments,
+            "include_auth": include_auth,
+            "include_params": include_params,
+            "page": page
+        }
+
+        current_span = trace.get_current_span()
+        current_span.set_status(status=trace.StatusCode(2))
+
+        logger.info("Get method invoked", extra=extra_data)
+
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "GET")
+        current_span.set_attribute(SpanAttributes.URL_PATH, path)
+
+        try:
+            url = Request.__get_url(path, arguments)
+            extra_data["url"] = url
+            logger.info("Url generated", extra=extra_data)
+        except Exception as e:
+            logger.exception(e, exc_info=True, extra=extra_data)
+            return None
+
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         if path.startswith("/api/") and path != "/api/info":
+            logger.info("Web API selected", exc_info=extra_data)
+            current_span.set_status(status=trace.StatusCode(1))
             return Request.get_method_web_api(url)
         elif path.startswith("/openapi/") or path == "/api/info":
+            logger.info("Open API selected", exc_info=extra_data)
+            current_span.set_status(status=trace.StatusCode(1))
             return Request.get_method_openapi(url, include_auth, include_params)
 
     @staticmethod
+    @tracer.start_as_current_span("Request.get_method_web_api")
     def get_method_web_api(url: str) -> requests.Response:
+        extra_data = {
+            "url": url
+        }
+        logger.info("Get method on Web API invoked", extra=extra_data)
+
+        current_span = trace.get_current_span()
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "GET")
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
+        current_span.set_status(status=trace.StatusCode(2))
 
         retry_counter: int = 0
 
         while (retry_counter < Request.__web_api_retry_limit):
+            current_span.set_attribute(
+                SpanAttributes.HTTP_RETRY_COUNT, retry_counter
+            )
+
             retry_counter = retry_counter + 1
             session = Request.__user_session.get_session()
-            response = session.get(
-                url=url,
-                params={
-                    "_t": Request.__get_timestamp()
-                }
+            try:
+                response = session.get(
+                    url=url,
+                    params={
+                        "_t": Request.__get_timestamp()
+                    }
+                )
+            except Exception as e:
+                logger.exception(e, exc_info=True, extra=extra_data)
+
+            current_span.set_attribute(
+                SpanAttributes.HTTP_STATUS_CODE, response.status_code
             )
 
             code, result, msg = Request.__get_result(response)
             if code == 0:
+                logger.info("Web API called successfully", extra=extra_data)
                 break
 
             if code == -1:
+                logger.warning(
+                    "Web API call was not successful, trying to re-login", extra=extra_data
+                )
                 Request.__user_session.login()
 
         if code != 0:
-            raise Exception(msg)
+            logger.exception(msg, exc_info=True, extra=extra_data)
+            return None
 
+        current_span.set_status(status=trace.StatusCode(1))
         return result
 
     @staticmethod
+    @tracer.start_as_current_span("Request.get_method_openapi")
     def get_method_openapi(
         url: str, include_auth: bool = True, include_params: bool = True, page: int = 1
     ) -> dict:
+        extra_data = {
+            "url": url,
+            "include_auth": include_auth,
+            "include_params": include_params,
+            "page": page
+        }
+        logger.info("Get method on Open API invoked", extra=extra_data)
+
+        current_span = trace.get_current_span()
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "GET")
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         retry_counter: int = 0
         while (retry_counter < Request.__open_api_retry_limit):
+            current_span.set_attribute(
+                SpanAttributes.HTTP_RETRY_COUNT, retry_counter
+            )
+
             retry_counter = retry_counter + 1
 
             headers = Request.__get_headers(include_auth)
             params = Request.__get_params(page, include_params)
 
-            response = requests.get(
-                url,
-                headers=headers,
-                params=params,
-                verify=Request.__verify_certificate
+            try:
+                response = requests.get(
+                    url,
+                    headers=headers,
+                    params=params,
+                    verify=Request.__verify_certificate
+                )
+            except Exception as e:
+                logger.exception(e, exc_info=True, extra=extra_data)
+
+            current_span.set_attribute(
+                SpanAttributes.HTTP_STATUS_CODE, response.status_code
             )
 
             code, result, msg = Request.__get_result(response)
 
             if code == 0:
+                logger.info("Open API called successfully", extra=extra_data)
                 break
             elif code in Auth.OpenAPI.TokenException.OmadaErrorCodes:
+                logger.warning(
+                    "Open API call was not successful ({errCode}), trying, to request new token".format(
+                        errCode=code
+                    ),
+                    extra=extra_data
+                )
                 Auth.OpenAPI.request_token()
 
         if code != 0:
-            raise Exception(msg)
+            logger.exception(msg, exc_info=True, extra=extra_data)
+            return None
 
         if Request.__has_data(result):
+            logger.info("Result contains data", extra=extra_data)
             if not Request.__has_more_data_to_fetch(result):
+                logger.info(
+                    "Result has no more data to download, returning the result", extra=extra_data
+                )
+                current_span.set_status(status=trace.StatusCode(1))
                 return result.get("data")
-
+            
+            logger.info("Result has more data to download", extra=extra_data)
             result = result.get("data")
             result += Request.get(
                 url, include_auth, include_params, page+1
             )
 
+        current_span.set_status(status=trace.StatusCode(1))
         return result
 
     @staticmethod
+    @tracer.start_as_current_span("Request.post")
     def post(path: str, arguments: dict = {}, body: dict = None):
-        url = Request.__get_url(path, arguments)
+        extra_data = {
+            "path": path,
+            "arguments": arguments,
+            "body": body
+        }
+        current_span = trace.get_current_span()
+        current_span.set_status(status=trace.StatusCode(2))
+        
+        logger.info("Post method invoked", extra=extra_data)
+        
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
+        current_span.set_attribute(SpanAttributes.URL_PATH, path)
+        
+        try:
+            url = Request.__get_url(path, arguments)
+            extra_data["url"] = url
+            logger.info("Url generated", extra=extra_data)
+        except Exception as e:
+            logger.exception(e, exc_info=True, extra=extra_data)
+        
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         if path.startswith("/api/") and path != "/api/info":
-            return Request.__post_method_web_api(url, body)
+            logger.info("Web API selected", exc_info=extra_data)
+            current_span.set_status(status=trace.StatusCode(1))
+            return Request.post_method_web_api(url, body)
         elif path.startswith("/openapi/") or path == "/api/info":
-            return Request.__post_method_openapi(url, body)
+            logger.info("Open API selected", exc_info=extra_data)
+            current_span.set_status(status=trace.StatusCode(1))
+            return Request.post_method_openapi(url, body)
 
     @staticmethod
-    def __post_method_openapi(url: str, body: dict = None):
-        if body is not None:
-            response = requests.post(
-                url=url, json=body, verify=Request.__verify_certificate
-            )
-        else:
-            response = requests.post(
-                url=url, verify=Request.__verify_certificate
-            )
-
+    @tracer.start_as_current_span("Request.post_method_openapi")
+    def post_method_openapi(url: str, body: dict = None):
+        extra_data = {
+            "url": url,
+            "body": body
+        }
+        
+        logger.info("Post method on Open API invoked", extra=extra_data)
+        
+        current_span = trace.get_current_span()
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
+        current_span.set_status(status=trace.StatusCode(2))
+        
+        try:
+            if body is not None:
+                response = requests.post(
+                    url=url, json=body, verify=Request.__verify_certificate
+                )
+            else:
+                response = requests.post(
+                    url=url, verify=Request.__verify_certificate
+                )
+        except Exception as e:
+            logger.exception(e,exc_info=True,extra=extra_data)
+            return None
+            
+        current_span.set_attribute(
+                SpanAttributes.HTTP_STATUS_CODE, response.status_code
+        )
+        
         code, result, msg = Request.__get_result(response)
 
         if code != 0:
-            raise Exception(msg)
+            logger.exception(msg, exc_info=True, extra=extra_data)
+            return None
 
+        current_span.set_status(status=trace.StatusCode(1))
         return result
 
     @staticmethod
-    def __post_method_web_api(url, body):
+    @tracer.start_as_current_span("Request.post_method_web_api")
+    def post_method_web_api(url, body):
+        extra_data = {
+            "url": url,
+            "body": body
+        }
+        
+        logger.info("Post method on Web API invoked", extra=extra_data)
+        
+        current_span = trace.get_current_span()
+        current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
+        current_span.set_attribute(SpanAttributes.URL_FULL, url)
+        current_span.set_status(status=trace.StatusCode(2))
+        
+        try:
+            session = Request.__user_session.get_session()
+            response = session.post(
+                url=url,
+                json=body
+            )
+        except Exception as e:
+            logger.exception(e,exc_info=True,extra=extra_data)
+            return None
 
-        session = Request.__user_session.get_session()
-        response = session.post(
-            url=url,
-            json=body
+        current_span.set_attribute(
+                SpanAttributes.HTTP_STATUS_CODE, response.status_code
         )
-
+        
         code, result, msg = Request.__get_result(response)
 
         if code != 0:
-            raise Exception(msg)
+            logger.exception(msg, exc_info=True, extra=extra_data)
 
+        current_span.set_status(status=trace.StatusCode(1))
         return result
 
     @staticmethod

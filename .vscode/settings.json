@@ -3,12 +3,16 @@
         "dotenv",
         "fastapi",
         "healthcheck",
+        "Instrumentor",
         "OMADA",
         "omadac",
+        "opentelemetry",
+        "otlp",
         "Pkts",
         "pvid",
         "pydantic",
         "rssi",
+        "semconv",
         "timespan",
         "uvicorn"
     ]

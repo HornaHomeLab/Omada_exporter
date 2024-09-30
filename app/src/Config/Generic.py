@@ -1,0 +1,2 @@
+SERVICE_NAME="Omada_Exporter"
+ENVIRONMENT="DEV"
