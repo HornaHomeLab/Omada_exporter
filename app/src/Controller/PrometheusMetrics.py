@@ -11,6 +11,7 @@ class PrometheusMetrics:
     @staticmethod
     @tracer.start_as_current_span("PrometheusMetrics.update")
     def update():
+        logger.info("PrometheusMetrics update invoked")
         current_span = trace.get_current_span()
         current_span.set_status(status=trace.StatusCode(2))
         

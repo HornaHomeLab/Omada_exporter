@@ -94,7 +94,7 @@ class AccessPoint:
         current_span.set_status(status=trace.StatusCode(2))
         logger.info(
             "Getting AccessPoint radio info for {num} APs".format(
-                num=len(Devices.switches)
+                num=len(Devices.access_points)
             ),
             extra={
                 "devices": [item.mac for item in Devices.access_points]
