@@ -3,8 +3,10 @@ import datetime
 import requests
 from dotenv import load_dotenv
 from src.Omada.Connection.Auth.BaseAuth import BaseAuth
+from src.Observability.Log.logger import logger
 
 load_dotenv()
+
 
 
 class OpenAPI(BaseAuth):
@@ -19,14 +21,18 @@ class OpenAPI(BaseAuth):
 
     @staticmethod
     def get_token() -> str:
+        
         if not OpenAPI.__accessToken:
+            logger.warning("Access Token not found")
             OpenAPI.request_token()
             return OpenAPI.__accessToken
 
         if not OpenAPI.__is_token_expired():
+            logger.info("Found valid access token for OpenAPI")
             return OpenAPI.__accessToken
 
-        OpenAPI.__refresh_token()
+        logger.warning("Access Token is expired")
+        OpenAPI.refresh_token()
         return OpenAPI.__accessToken
 
     @staticmethod
@@ -43,23 +49,30 @@ class OpenAPI(BaseAuth):
 
     @staticmethod
     def request_token() -> None:
+        logger.info("Requesting new OpenAPI Access Token")
         url: str = OpenAPI.get_url(OpenAPI.__path_get_token)
         body = {
             "omadacId": OpenAPI.omada_cid,
             "client_id": OpenAPI.__client_id,
             "client_secret": OpenAPI.__client_secret
         }
-        response: requests.Response = requests.post(url=url, json=body)
+        try:
+            response: requests.Response = requests.post(url=url, json=body)
 
-        code, result, msg = BaseAuth.get_result(response)
-
+            code, result, msg = BaseAuth.get_result(response)
+        except Exception as e:
+            logger.exception(e, exc_info=True)
+        
+        
         if code != 0:
-            raise Exception(msg)
+            logger.exception(msg, exc_info=True)
 
         OpenAPI.__set_token_details(result)
+        logger.info("Access Token requested successfully")
 
     @staticmethod
-    def __refresh_token() -> None:
+    def refresh_token() -> None:
+        logger.info("Refreshing OpenAPI Access Token")
         url: str = OpenAPI.get_url(
             OpenAPI.__path_refresh_token,
             {
@@ -68,14 +81,18 @@ class OpenAPI(BaseAuth):
                 "refresh_token": OpenAPI.__refreshToken
             }
         )
-        
-        response: requests.Request = requests.post(url)
-        
-        code, result, msg = BaseAuth.get_result(response)
+        try:
+            response: requests.Request = requests.post(url)
+
+            code, result, msg = BaseAuth.get_result(response)
+        except Exception as e:
+            logger.exception(e,exc_info=True)
 
         if code == 0:
             OpenAPI.__set_token_details(result)
+            logger.info("OpenAPI token refreshed successfully")
         else:
+            logger.warning(msg, exc_info=True)
             OpenAPI.request_token()
 
     @staticmethod

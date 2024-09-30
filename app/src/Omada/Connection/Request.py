@@ -59,11 +59,9 @@ class Request:
         current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         if path.startswith("/api/") and path != "/api/info":
-            logger.info("Web API selected", exc_info=extra_data)
             current_span.set_status(status=trace.StatusCode(1))
             return Request.get_method_web_api(url)
         elif path.startswith("/openapi/") or path == "/api/info":
-            logger.info("Open API selected", exc_info=extra_data)
             current_span.set_status(status=trace.StatusCode(1))
             return Request.get_method_openapi(url, include_auth, include_params)
 

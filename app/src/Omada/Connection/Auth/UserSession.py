@@ -3,6 +3,8 @@ import os
 import requests
 import datetime
 from requests.cookies import RequestsCookieJar
+from src.Observability.Log.logger import logger
+
 
 
 @dataclass
@@ -53,21 +55,25 @@ class UserSession:
         return result.get("login")
 
     def login(self):
+        logger.info("Trying to login")
         url = self.__login_endpoint.format(
             base_url=self.__base_url,
             omadacId=self.omada_cid
         )
-
-        response = self.session.post(
-            url,
-            json={'username': self.username, 'password': self.password}
-        )
-        self.__login_result = response.json()
-        self.session.headers.update(
-            {
-                "Csrf-Token":  self.__login_result["result"]['token'],
-            }
-        )
+        try:
+            response = self.session.post(
+                url,
+                json={'username': self.username, 'password': self.password}
+            )
+            self.__login_result = response.json()
+            self.session.headers.update(
+                {
+                    "Csrf-Token":  self.__login_result["result"]['token'],
+                }
+            )
+            logger.info("Logged in successfully")
+        except Exception as e:
+            logger.exception(e, exc_info=True)
 
     def __logout(self):
         url = self.__logout_endpoint.format(
@@ -80,8 +86,18 @@ class UserSession:
 
         result = t.json()
         return result
-
+    
     def get_session(self) -> requests.Session:
+
+        logger.info(
+            "Getting user session for user {name}".format(
+                name=self.username
+            )
+        )
+
         if self.is_logged_in() is not True:
+            logger.warning("UserSession is not logged in")
             self.login()
+            
+
         return self.session
