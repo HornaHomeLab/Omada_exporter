@@ -1,3 +1,3 @@
 USE_TEMPO=True
-TEMPO_IP = "dockerserver"
+TEMPO_IP = "10.0.10.110"
 TEMPO_PORT = "4317"

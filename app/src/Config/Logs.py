@@ -1,4 +1,4 @@
 USE_LOKI=True
-LOKI_IP = "dockerserver"
+LOKI_IP = "10.0.10.110"
 LOKI_PORT = "3100"
 LOG_LEVEL="INFO"
