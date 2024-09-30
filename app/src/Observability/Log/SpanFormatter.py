@@ -11,11 +11,11 @@ class SpanFormatter(LoggerFormatter):
         if trace_id == 0:
             record.trace_id = None
         else:
-            record.trace_id = "{trace:32x}".format(trace=trace_id)
+            record.trace_id = "{trace:032x}".format(trace=trace_id)
 
         if span_id == 0:
             record.span_id = None
         else:
-            record.span_id = "{span:16x}".format(span=span_id)
+            record.span_id = "{span:016x}".format(span=span_id)
 
         return super().format(record)
