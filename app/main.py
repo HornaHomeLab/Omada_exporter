@@ -1,14 +1,14 @@
 import uvicorn
 from fastapi import FastAPI
 import src.Router as Router
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-import src.Observability.Trace.OpenTelemetry
+from src.Observability import *
 
 app = FastAPI()
 app.include_router(Router.Prometheus_router)
 app.include_router(Router.HealthCheck)
 
-FastAPIInstrumentor().instrument_app(app)
+opentelemetry_instrument(app)
+prometheus_instrument(app)
 
 if __name__ == '__main__':
     uvicorn.run(

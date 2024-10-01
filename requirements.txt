@@ -26,6 +26,7 @@ opentelemetry-proto==1.27.0
 opentelemetry-sdk==1.27.0
 opentelemetry-semantic-conventions==0.48b0
 opentelemetry-util-http==0.48b0
+prometheus-fastapi-instrumentator==7.0.0
 prometheus_client==0.20.0
 protobuf==4.25.5
 pydantic==2.8.2

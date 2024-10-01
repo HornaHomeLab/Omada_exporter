@@ -1,10 +1,9 @@
 import src.Omada.Controller as Controller
 import src.Model as Model
-from opentelemetry.semconv.trace import SpanAttributes
-from opentelemetry import trace
-from src.Observability.Log.logger import logger
+from src.Observability import *
 
 tracer = trace.get_tracer("HealthCheckController-tracer")
+
 
 class HealthCheck:
 
@@ -13,12 +12,12 @@ class HealthCheck:
     def get_status() -> Model.HealthCheck:
         current_span = trace.get_current_span()
         current_span.set_status(status=trace.StatusCode(2))
-        
+
         try:
             result = Controller.HealthCheck.get()
         except Exception as e:
             logger.exception(e, exc_info=True)
-            
+
         current_span.set_status(status=trace.StatusCode(1))
         return Model.HealthCheck(
             **result

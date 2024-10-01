@@ -1,8 +1,6 @@
 import src.Omada.Connection as Connection
 from src.Omada.Controller.Devices import Devices
-from opentelemetry.semconv.trace import SpanAttributes
-from opentelemetry import trace
-from src.Observability.Log.logger import logger
+from src.Observability import *
 
 tracer = trace.get_tracer("HealthCheck-tracer")
 

@@ -1,12 +1,10 @@
-from opentelemetry.semconv.trace import SpanAttributes
-from opentelemetry import trace
 import os
 import atexit
-from dotenv import load_dotenv
 import requests
 import datetime
 import src.Omada.Connection.Auth as Auth
-from src.Observability.Log.logger import logger
+from dotenv import load_dotenv
+from src.Observability import *
 load_dotenv()
 
 
@@ -187,7 +185,7 @@ class Request:
                 )
                 current_span.set_status(status=trace.StatusCode(1))
                 return result.get("data")
-            
+
             logger.info("Result has more data to download", extra=extra_data)
             result = result.get("data")
             result += Request.get(
@@ -207,19 +205,19 @@ class Request:
         }
         current_span = trace.get_current_span()
         current_span.set_status(status=trace.StatusCode(2))
-        
+
         logger.info("Post method invoked", extra=extra_data)
-        
+
         current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
         current_span.set_attribute(SpanAttributes.URL_PATH, path)
-        
+
         try:
             url = Request.__get_url(path, arguments)
             extra_data["url"] = url
             logger.info("Url generated", extra=extra_data)
         except Exception as e:
             logger.exception(e, exc_info=True, extra=extra_data)
-        
+
         current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         if path.startswith("/api/") and path != "/api/info":
@@ -238,14 +236,14 @@ class Request:
             "url": url,
             "body": body
         }
-        
+
         logger.info("Post method on Open API invoked", extra=extra_data)
-        
+
         current_span = trace.get_current_span()
         current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
         current_span.set_attribute(SpanAttributes.URL_FULL, url)
         current_span.set_status(status=trace.StatusCode(2))
-        
+
         try:
             if body is not None:
                 response = requests.post(
@@ -256,13 +254,13 @@ class Request:
                     url=url, verify=Request.__verify_certificate
                 )
         except Exception as e:
-            logger.exception(e,exc_info=True,extra=extra_data)
+            logger.exception(e, exc_info=True, extra=extra_data)
             return None
-            
+
         current_span.set_attribute(
-                SpanAttributes.HTTP_STATUS_CODE, response.status_code
+            SpanAttributes.HTTP_STATUS_CODE, response.status_code
         )
-        
+
         code, result, msg = Request.__get_result(response)
 
         if code != 0:
@@ -279,14 +277,14 @@ class Request:
             "url": url,
             "body": body
         }
-        
+
         logger.info("Post method on Web API invoked", extra=extra_data)
-        
+
         current_span = trace.get_current_span()
         current_span.set_attribute(SpanAttributes.HTTP_METHOD, "POST")
         current_span.set_attribute(SpanAttributes.URL_FULL, url)
         current_span.set_status(status=trace.StatusCode(2))
-        
+
         try:
             session = Request.__user_session.get_session()
             response = session.post(
@@ -294,13 +292,13 @@ class Request:
                 json=body
             )
         except Exception as e:
-            logger.exception(e,exc_info=True,extra=extra_data)
+            logger.exception(e, exc_info=True, extra=extra_data)
             return None
 
         current_span.set_attribute(
-                SpanAttributes.HTTP_STATUS_CODE, response.status_code
+            SpanAttributes.HTTP_STATUS_CODE, response.status_code
         )
-        
+
         code, result, msg = Request.__get_result(response)
 
         if code != 0:
@@ -380,27 +378,73 @@ class Request:
         return status_code, response_json.get("result", None), response_json.get("msg", None)
 
     @staticmethod
+    @tracer.start_as_current_span("Request.init")
     def init() -> None:
-        api_info = Request.get(
-            "/api/info", include_auth=False, include_params=False
-        )
-        Request.controller_version = api_info.get("controllerVer")
-        Request.api_version = api_info.get("apiVer")
-        Request.omada_cid = api_info.get("omadacId")
-        Auth.OpenAPI.omada_cid = api_info.get("omadacId")
+        current_span = trace.get_current_span()
+        current_span.set_status(status=trace.StatusCode(2))
+        exception_occurred = False
+        
+        try:
+            api_info = Request.get(
+                "/api/info", include_auth=False, include_params=False
+            )
+            logger.info(
+                "Omada API info fetched successfully",
+                exc_info={
+                    "api_info": api_info
+                }
+            )
+        except Exception as e:
+            exception_occurred = True
+            logger.exception(e, exc_info=True)
 
-        Request.__user_session = Auth.UserSession(
-            username=os.getenv("OMADA_USER"),
-            password=os.getenv("OMADA_USER_PASSWORD"),
-            omada_cid=Request.omada_cid
-        )
+        try:
+            Request.controller_version = api_info.get("controllerVer")
+            Request.api_version = api_info.get("apiVer")
+            Request.omada_cid = api_info.get("omadacId")
+            Auth.OpenAPI.omada_cid = api_info.get("omadacId")
+            logger.info("Controller related data set")
+        except Exception as e:
+            exception_occurred = True
+            logger.exception(e, exc_info=True)
 
-        site = Request.get("/openapi/v1/{omadacId}/sites")
-        Request.site_id = [
-            entry.get("siteId")
-            for entry in site
-            if entry.get("name") == os.getenv("SITE_NAME")
-        ][0]
+        user_session_span = tracer.start_span(name="UserSession.init")
+
+        try:
+            Request.__user_session = Auth.UserSession(
+                username=os.getenv("OMADA_USER"),
+                password=os.getenv("OMADA_USER_PASSWORD"),
+                omada_cid=Request.omada_cid
+            )
+
+            logger.info("UserSession created successfully")
+        except Exception as e:
+            exception_occurred = True
+            logger.exception(e, exc_info=True)
+        
+        user_session_span.end()
+        
+        try:
+            site = Request.get("/openapi/v1/{omadacId}/sites")
+            Request.site_id = [
+                entry.get("siteId")
+                for entry in site
+                if entry.get("name") == os.getenv("SITE_NAME")
+            ][0]
+            logger.info(
+                "Site selected successfully ({site_id})".format(
+                    site_id=Request.site_id
+                ),
+                exc_info={
+                    "available_sites": site
+                }
+            )
+        except Exception as e:
+            exception_occurred = True
+            logger.exception(e, exc_info=True)
+            
+        if not exception_occurred:
+            current_span.set_status(status=trace.StatusCode(1))
 
     @staticmethod
     def close():
