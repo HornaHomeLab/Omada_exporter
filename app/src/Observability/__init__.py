@@ -4,8 +4,20 @@ from src.Observability.Trace.OpenTelemetry import *
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 
+
 def opentelemetry_instrument(app):
-    FastAPIInstrumentor().instrument_app(app)
+    (
+        FastAPIInstrumentor()
+        .instrument_app(app)
+    )
+
 
 def prometheus_instrument(app):
-    Instrumentator().instrument(app).expose(app)
+    (
+        Instrumentator()
+        .instrument(app)
+        .expose(
+            app=app,
+            endpoint="/appmetrics"
+        )
+    )

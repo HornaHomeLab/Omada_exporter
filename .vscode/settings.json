@@ -3,6 +3,7 @@
         "dotenv",
         "fastapi",
         "healthcheck",
+        "Instrumentator",
         "Instrumentor",
         "OMADA",
         "omadac",

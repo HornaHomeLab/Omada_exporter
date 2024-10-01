@@ -9,6 +9,6 @@ Prometheus_router = APIRouter()
 def get_metrics():
     Controller.PrometheusMetrics.update()
     return Response(
-        content=generate_latest(),
+        content=generate_latest(Controller.PrometheusMetrics.registry),
         media_type="text/plain"
     )

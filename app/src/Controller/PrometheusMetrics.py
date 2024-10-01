@@ -6,6 +6,8 @@ tracer = trace.get_tracer("PrometheusMetricsController-tracer")
 
 
 class PrometheusMetrics:
+    
+    registry = Prometheus.exporter_registry
 
     @staticmethod
     @tracer.start_as_current_span("PrometheusMetrics.update")
