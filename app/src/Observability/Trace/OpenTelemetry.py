@@ -3,14 +3,15 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import Compression
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.resources import SERVICE_NAME, DEPLOYMENT_ENVIRONMENT, Resource
 import src.Config as Config
 
 
 # OpenTelemetry
 trace_resource = Resource.create(
     attributes={
-        SERVICE_NAME: Config.SERVICE_NAME
+        SERVICE_NAME: Config.SERVICE_NAME,
+        DEPLOYMENT_ENVIRONMENT: Config.ENVIRONMENT
     }
 )
 trace.set_tracer_provider(TracerProvider(resource=trace_resource))
