@@ -1,11 +1,9 @@
-import os
 import atexit
 import requests
 import datetime
 import src.Omada.Connection.Auth as Auth
-from dotenv import load_dotenv
+import src.Config as Config
 from src.Observability import *
-load_dotenv()
 
 
 tracer = trace.get_tracer("Request-tracer")
@@ -20,8 +18,8 @@ class Request:
 
     __user_session: Auth.UserSession = None
 
-    __base_url: str = os.getenv("BASE_URL")
-    __verify_certificate: bool = os.getenv("VERIFY_CERTIFICATE")
+    __base_url: str = Config.BASE_URL
+    __verify_certificate: bool = Config.VERIFY_CERTIFICATE
 
     __page_size: int = 100
     __web_api_retry_limit: int = 2
@@ -398,8 +396,8 @@ class Request:
         with tracer.start_as_current_span("UserSession.init"):
             try:
                 Request.__user_session = Auth.UserSession(
-                    username=os.getenv("OMADA_USER"),
-                    password=os.getenv("OMADA_USER_PASSWORD"),
+                    username=Config.OMADA_USER,
+                    password=Config.OMADA_USER_PASSWORD,
                     omada_cid=Request.omada_cid
                 )
             except Exception as e:
@@ -409,12 +407,11 @@ class Request:
                 logger.info("UserSession created successfully")
 
         try:
-            site_name: str = os.getenv("SITE_NAME", None)
             site = Request.get("/openapi/v1/{omadacId}/sites")
             Request.site_id = [
                 entry.get("siteId")
                 for entry in site
-                if entry.get("name") == site_name
+                if entry.get("name") == Config.SITE_NAME
             ][0]
         except Exception as e:
             error = True
@@ -422,7 +419,7 @@ class Request:
         else:
             logger.info(
                 "Site {name} selected successfully ({site_id})".format(
-                    name=site_name,
+                    name=Config.SITE_NAME,
                     site_id=Request.site_id
                 ),
                 exc_info={

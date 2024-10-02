@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
-import os
 import requests
 import datetime
 from requests.cookies import RequestsCookieJar
 from src.Observability.Log.logger import logger
-
+import src.Config as Config
 
 
 @dataclass
@@ -30,7 +29,7 @@ class UserSession:
     def __post_init__(self):
         self.session = requests.Session()
         self.session.cookies = RequestsCookieJar()
-        self.__base_url = os.getenv("BASE_URL")
+        self.__base_url = Config.BASE_URL
         self.login()
 
     def __del__(self):

@@ -1,17 +1,12 @@
-import os
 import datetime
 import requests
-from dotenv import load_dotenv
 from src.Omada.Connection.Auth.BaseAuth import BaseAuth
 from src.Observability.Log.logger import logger
-
-load_dotenv()
-
-
+import src.Config as Config
 
 class OpenAPI(BaseAuth):
-    __client_id: str = os.getenv('OMADA_CLIENT_ID')
-    __client_secret: str = os.getenv('OMADA_CLIENT_SECRET')
+    __client_id: str = Config.OMADA_CLIENT_ID
+    __client_secret: str = Config.OMADA_CLIENT_SECRET
     __path_get_token: str = "/openapi/authorize/token?grant_type=client_credentials"
     __path_refresh_token: str = "/openapi/authorize/token?client_id={client_id}&client_secret={client_secret}&refresh_token={refresh_token}&grant_type=refresh_token"
     __accessToken: str = None
