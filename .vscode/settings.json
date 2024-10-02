@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "appmetrics",
         "dotenv",
         "fastapi",
         "healthcheck",
