@@ -10,15 +10,14 @@ class HealthCheck:
     @staticmethod
     @tracer.start_as_current_span("HealthCheck.get_status")
     def get_status() -> Model.HealthCheck:
-        current_span = trace.get_current_span()
-        current_span.set_status(status=trace.StatusCode(2))
+        get_current_span()
 
         try:
-            result = Controller.HealthCheck.get()
+            health_status: dict = Controller.HealthCheck.get()
+            result = Model.HealthCheck(**health_status)
         except Exception as e:
             logger.exception(e, exc_info=True)
-
-        current_span.set_status(status=trace.StatusCode(1))
-        return Model.HealthCheck(
-            **result
-        )
+            raise e
+        else:
+            set_current_span_status()
+            return result

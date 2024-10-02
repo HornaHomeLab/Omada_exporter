@@ -1,6 +1,5 @@
 import src.Omada.Model as Model
 import src.Omada.Connection as Connection
-import src.Prometheus as Prometheus
 from src.Observability import *
 
 tracer = trace.get_tracer("Device-tracer")
@@ -16,34 +15,36 @@ class Devices:
     @staticmethod
     @tracer.start_as_current_span("Device.init")
     def init() -> None:
-        current_span = trace.get_current_span()
-        current_span.set_status(status=trace.StatusCode(2))
+        get_current_span()
         
         try:
             Devices.get_list()
-            current_span.set_status(status=trace.StatusCode(1))
-        except:
-            pass
+        except Exception as e:
+            logger.exception("Cannot fetch device list",exc_info=True)
+        else:
+            set_current_span_status()
+
         return None
 
     @staticmethod
     @tracer.start_as_current_span("Device.get_list")
     def get_list() -> Model.Device:
-        current_span = trace.get_current_span()
-        current_span.set_status(status=trace.StatusCode(2))
+        
+        get_current_span()
         try:
             response: dict = Connection.Request.get(Devices.__device_list_path)
             devices: list[Model.Device] = [
                 Model.Device(**item)
                 for item in response
             ]
-            logger.info("Found {num} devices".format(num=len(devices)))
-            Devices.__update_device_cache(devices)
         except Exception as e:
             logger.exception(e, exc_info=True)
             raise e
+        else:
+            logger.info("Found {num} devices".format(num=len(devices)))
+            Devices.__update_device_cache(devices)
+            set_current_span_status()
 
-        current_span.set_status(status=trace.StatusCode(1))
         return devices
 
     @staticmethod

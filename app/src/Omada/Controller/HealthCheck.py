@@ -14,8 +14,7 @@ class HealthCheck:
     @staticmethod
     @tracer.start_as_current_span("HealthCheck.get")
     def get() -> dict[str,str]:
-        current_span = trace.get_current_span()
-        current_span.set_status(status=trace.StatusCode(2))
+        get_current_span()
         
         try:
             result = {
@@ -26,9 +25,11 @@ class HealthCheck:
             }
         except Exception as e:
             logger.exception(e,exc_info=True)
-        
-        current_span.set_status(status=trace.StatusCode(1))
-        return result
+            raise e
+        else:
+            set_current_span_status()
+        finally:
+            return result
 
     @staticmethod
     @tracer.start_as_current_span("HealthCheck.__test_web_api_endpoint")
@@ -51,12 +52,12 @@ class HealthCheck:
     @staticmethod
     @tracer.start_as_current_span("HealthCheck.__test_open_api_endpoint")
     def __test_open_api_endpoint() -> str:
-        current_span = trace.get_current_span()
-        current_span.set_status(status=trace.StatusCode(2))
+        get_current_span()
         
         try:
             Devices.get_list()
-            current_span.set_status(status=trace.StatusCode(1))
-            return True
         except:
             return False
+        else:
+            set_current_span_status()
+            return True

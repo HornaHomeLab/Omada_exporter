@@ -1,2 +1,4 @@
+import os
+
 SERVICE_NAME="Omada_Exporter"
-ENVIRONMENT="DEV"
+ENVIRONMENT=os.getenv("ENVIRONMENT_TYPE", "development")

@@ -16,8 +16,4 @@ def prometheus_instrument(app):
     (
         Instrumentator()
         .instrument(app)
-        .expose(
-            app=app,
-            endpoint="/appmetrics"
-        )
     )

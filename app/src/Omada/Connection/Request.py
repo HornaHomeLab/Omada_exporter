@@ -95,9 +95,12 @@ class Request:
             except Exception as e:
                 logger.exception(e, exc_info=True, extra=extra_data)
 
-            current_span.set_attribute(
-                SpanAttributes.HTTP_STATUS_CODE, response.status_code
-            )
+            try:
+                current_span.set_attribute(
+                    SpanAttributes.HTTP_STATUS_CODE, response.status_code
+                )
+            except:
+                pass
 
             code, result, msg = Request.__get_result(response)
             if code == 0:
