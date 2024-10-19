@@ -26,15 +26,15 @@ Find available exporter's metrics [here](/app/src/Prometheus/README.md#supported
 
 Dashboards are available for import [here](/Grafana/Dashboards/)
 
-### Router
+### [Router](/Grafana/README.md#router)
 
 ![image](/Grafana/Pictures/Router_1.png)
 
-### Switch
+### [Switch](/Grafana/README.md#switch)
 
 ![image](/Grafana/Pictures/Switch_1.png)
 
-### Access Point
+### [Access Point](/Grafana/README.md#access-point)
 
 ![image](/Grafana/Pictures/AccessPoint_1.png)
 
