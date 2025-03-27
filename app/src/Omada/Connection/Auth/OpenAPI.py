@@ -56,7 +56,7 @@ class OpenAPI(BaseAuth):
             "client_secret": OpenAPI.__client_secret,
         }
         try:
-            response: requests.Response = requests.post(url=url, json=body)
+            response: requests.Response = requests.post(url=url, json=body, verify=False)
 
             code, result, msg = BaseAuth.get_result(response)
         except Exception as e:

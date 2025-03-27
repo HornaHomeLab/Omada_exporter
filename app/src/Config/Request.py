@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL")
-VERIFY_CERTIFICATE = os.getenv("VERIFY_CERTIFICATE")
+# VERIFY_CERTIFICATE = os.getenv("VERIFY_CERTIFICATE")
+VERIFY_CERTIFICATE = False
 SITE_NAME = os.getenv("SITE_NAME", None)
 
 
