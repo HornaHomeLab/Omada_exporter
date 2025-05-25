@@ -83,7 +83,7 @@ class Request:
             session = Request.__user_session.get_session()
             try:
                 response = session.get(
-                    url=url, params={"_t": Request.__get_timestamp()}
+                    url=url, params={"_t": Request.__get_timestamp()}, verify=False, allow_redirects=True
                 )
             except Exception as e:
                 logger.exception(e, exc_info=True, extra=extra_data)

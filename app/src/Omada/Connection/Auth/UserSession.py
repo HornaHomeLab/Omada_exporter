@@ -55,7 +55,7 @@ class UserSession:
         )
         try:
             response = self.session.post(
-                url, json={"username": self.username, "password": self.password}
+                url, json={"username": self.username, "password": self.password}, verify=False
             )
             self.__login_result = response.json()
             self.session.headers.update(

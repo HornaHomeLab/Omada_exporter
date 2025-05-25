@@ -31,7 +31,8 @@ class Switch:
         for switch in Devices.switches:
             try:
                 switch_info: dict = Connection.Request.get(
-                    Switch.__switch_info_path, {"switchMac": switch.mac}
+                    "/openapi/v1/{omadacId}/sites/{siteId}/switches/{switchMac}",
+                    {"switchMac": switch.mac},
                 )
                 switch_object = Model.Switch(**{"name": switch.name, **switch_info})
                 switch_devices.append(switch_object)
