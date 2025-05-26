@@ -253,7 +253,7 @@ class Request:
         current_span.set_attribute(SpanAttributes.URL_FULL, url)
 
         session = Request.__user_session.get_session()
-        response = session.post(url=url, json=body)
+        response = session.post(url=url, json=body, verify=Request.__verify_certificate)
 
         current_span.set_attribute(
             SpanAttributes.HTTP_STATUS_CODE, response.status_code

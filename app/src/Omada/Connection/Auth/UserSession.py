@@ -39,7 +39,7 @@ class UserSession:
         url = self.__is_logged_in_endpoint.format(base_url=self.__base_url)
         try:
             response: dict = self.session.get(
-                url=url, params={"_t": int(datetime.datetime.now().timestamp() * 1000)}
+                url=url, params={"_t": int(datetime.datetime.now().timestamp() * 1000)}, verify=False
             ).json()
         except:
             return False
@@ -71,7 +71,7 @@ class UserSession:
         url = self.__logout_endpoint.format(
             base_url=self.__base_url, omadacId=self.omada_cid
         )
-        t = self.session.post(url)
+        t = self.session.post(url, verify=False)
 
         result = t.json()
         return result

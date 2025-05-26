@@ -80,7 +80,7 @@ class OpenAPI(BaseAuth):
             },
         )
         try:
-            response: requests.Request = requests.post(url)
+            response: requests.Request = requests.post(url, verify=False)
 
             code, result, msg = BaseAuth.get_result(response)
         except Exception as e:
